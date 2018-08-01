@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Simulador PVSio-web</title>
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Simulador 2D de Corridas em PVSio-web</h1>
+    <h3> </h3>
+    <section>
+        <article>
+        	<h2>Instalação de PVSio-web e como utilizar o Simulador 2D de Corridas</h2>
+        	<p>Neste apêndice é exemplificado o processo de instalação e <i>setup</i> necessário para utilizar o simulador, desenvolvido na presente dissertação, pela primeira vez. É também demonstrado o processo de utilização do mesmo.</p>
+        	<ul>
+        		<li>
+        			<h3><strong>Instalação</strong></h3>
+        			<p>As dependências a instalar apresentam-se de seguida,</p>
+        			<ol>
+        				<li>
+        					<h4><strong>PVS</strong></h4>
+        					<ol>
+        						<li><p>Realizar o <i>download</i> da dependência <i>PVS</i>, disponível em <a href="https://pvs.csl.sri.com/download.shtml">https://pvs.csl.sri.com/download.shtml</a>.</p></li>
+        						<li><p>Colocar o conteúdo numa pasta com o nome <i>'PVS'</i>, capitalizado, no seu ambiente de trabalho.</p></li>
+        					</ol>
+        				</li>
+        				<li>
+        					<h4><strong>Node.js</strong></h4>
+        					<ol>
+        						<li><p>Realizar o <i>download</i> da dependência <i>Node.js</i>, disponível em <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a>.</p></li>
+        						<li><p>Depois da instalação, abra o terminal e corra o comando <i>'node'</i>, por forma a verificar que o mesmo se encontra disponível a utilizar. Para sair do interpretador interactivo basta fazer <i>'control+c'</i>, duas vezes.</p></li>
+        					</ol>
+        				</li>
+						<li>
+							<h4><strong>PVSio-web</strong></h4>
+							<p>Para instalar <i>PVSio-web</i> é necessário realizar as seguintes etapas,</p>
+							<ol>
+        						<li><p>Criar uma nova pasta no local onde pretende correr o sistema, para tal basta abrir o terminal e correr o seguinte comando <i>'mkdir ~/Desktop/PVSio'</i>, e será criada uma pasta nova no ambiente de trabalho com o nome <i>'PVSio'</i>.</p></li>
+        						<li><p>Após a criação da pasta, abra o terminal, caso o tenha fechado e entre na nova pasta criada, tal é conseguido correndo o seguinte comando <i>'cd ~/Desktop/PVSio'</i>.</p></li>
+        						<li><p>Para os próximos comandos certifique-se que está conectado à <i>internet</i>, e execute os comandos que se seguem dentro da diretoria criada nos passos anteriores.</p></li>
+        						<pre class="prettyprint source"><code>1. git clone &quot;https://github.com/zecarlos94/pvsio-web.git&quot;
+2. cd pvsio-web/
+3. sudo npm install</code></pre>
+        					</ol>
+        					<p>Neste momento o utilizador deverá ter duas pastas no ambiente de trabalho, uma com o nome <i>'PVS'</i>, capitalizado, e uma com o nome <i>'PVSio'</i>. E dentro da última deverá existir apenas uma pasta com o nome <i>'pvsio-web'</i>.</p>
+						</li>
+        			</ol>
+        		</li>
+        		<li>
+        			<h3><strong>Como utilizar o Simulador 2D de Corridas</strong></h4>
+	        		<p>Nesta secção demonstra-se o processo de <i>setup</i> adicional necessário, bem como o processo que termina com o utilizador a experimentar o simulador 2D de corridas criado.
+	Para terminar, então, o processo de instalação será necessário mover a pasta com o nome <i>'PVS'</i> para dentro da pasta com o nome <i>'pvsio-web'</i>.</p>
+					<p>Por favor, abra o terminal e corra os seguintes comandos,</p>
+					<ol>
+						<pre class="prettyprint source"><code>1. 'mv ~/Desktop/PVS/ ~/Desktop/PVSio/pvsio-web/' ( mv pasta_fonte pasta_destino/pasta_fonte )
+2. 'cd ~/Desktop/PVSio/pvsio-web/'
+3. 'git checkout gamingDev' (Ir para o <i>branch</i> final da plataforma com o código e demonstrações desenvolvidas nesta dissertação)
+4. 'sh start.sh' (Iniciar servidor da plataforma <i>'PVSio-web'</i>)</code></pre>
+					</ol>
+					<p>Como resultado o utilizador deverá ter apenas uma pasta no ambiente de trabalho, uma com o nome <i>'PVSio-web'</i>, cujo conteúdo é apenas uma pasta com o nome <i>'pvsio-web'</i>, que possui, entre muitos ficheiros e pastas, uma pasta com o nome <i>'PVS'</i> com os binários correspondentes ao seu sistema operativo que permitirão utilizar o simulador de corridas desenvolvido, entre muitas outras demonstrações que existem na plataforma, sendo que algumas dessas também foram desenvolvidas nesta dissertação (pequenas variações, i.e. tamanhos diferentes, do simulador sem aplicar o caso de estudo - Veículo <i>Lincoln MKC</i> de 2015).</p>
+					<p>Agora poderá abrir o <i>browser</i> <strong>Google Chrome</strong> e insira o seguinte <i>url</i>, <a href="http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/">http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/</a>, para ter acesso ao simulador que usa uma pista pré-definida, isto é, que renderiza uma pista previamente construída pelo <i>widget TrackGenerator</i>, cujo ficheiro de configuração é <i>trackLayout_real.json</i>, presente em <a href="https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations">https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations</a>, tal como já foi explicado anteriormente. </p>
+					<p>Caso pretenda testar o simulador sem o painel de instrumentos completo do caso de estudo, isto é, sem o dashboard do veículo <i>Lincoln MKC</i> de 2015, insira o seguinte <i>url</i>, <a href="http://localhost:8082/demos/arcade_game_simulator/">http://localhost:8082/demos/arcade_game_simulator/</a>.</p>
+					<p>A demontração presente em <a href="http://localhost:8082/demos/arcade_game_simulator_full_screen/">http://localhost:8082/demos/arcade_game_simulator_full_screen/</a> é igual à demonstração em <a href="http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/">http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/</a> excepto a atualização dos medidores velocímetro e tacómetro. Ou seja, nesta demonstração optou-se por não renderizar a constante atualização dos valores da velocidade e das rotações por minuto, por forma a verificar o impacto que essa renderização tem na execução do simulador desenvolvido, como já foi explicado, i.e. a renderização desses valores torna mais lenta a condução no simulador.</p>
+					<p>A demonstração presente em <a href="http://localhost:8082/demos/arcade_game_simulator_shared_across_instances">http://localhost:8082/demos/arcade_game_simulator_shared_across_instances/</a> é igual à demonstração presente em <a href="http://localhost:8082/demos/arcade_game_simulator/">http://localhost:8082/demos/arcade_game_simulator/</a>, contudo apresenta mais alguns componentes, mais concretamente, apresenta mais dois simuladores de corridas que permite testar o problema de variavéis compartilhadas entre instâncias, o que não acontece obviamente, visto que pode ser executada a simulação de três simuladores em simultâneo sem qualquer problema. Esta demonstração é útil porque permite verificar também que é possível utilizar a mesma pista e ambientes circundantes com diferentes veículos (carro, mota, avião, helicóptero e bicicleta) e observar como cada um se comporta na sua simulação. Atualmente, a demonstração está configurada com três simulações iguais, isto é com a mesma pista e ambientes circundantes e com o mesmo veículo, contudo numa fase inicial já chegou a existir essas simulações com três veículos diferentes e ainda está presente no <i>branch gaming</i>.</p>
+					<p>Caso pretenda apenas criar uma nova pista, insira o o seguinte <i>url</i>, <a href="http://localhost:8082/demos/track_generator_simulator_for_paper">http://localhost:8082/demos/track_generator_simulator_for_paper/</a>. Para ter acesso à simulação total, isto é, se pretender criar uma nova pista, ou seja, criar os novos ambientes circundantes de teste, customizar algumas opções de renderização e proceder imediatamente à sua renderização insira o seguinte <i>url</i>, <a href="http://localhost:8082/demos/driving_simulator/">http://localhost:8082/demos/driving_simulator/</a>. Para iniciar a simulação apenas terá de seguir as instruções que aparecerão no seu ecrã, e caso pretenda, ligar o comando da <strong>PlayStation 4</strong> ou outro controlador externo semelhante, para facilitar o processo de simulação.
+					</p>
+					<p>Todas as demonstrações apresentadas até ao momento permitem que o utilizador observe ou crie simulações realistas, isto é, demonstrações com mais detalhe. No entanto, como já foi mencionado várias vezes, o simulador desenvolvido (construção de ambientes + renderização dos ambientes) permite também observar e/ou criar simulações com uma aparência semelhante aos jogos antigos de <i>arcade</i>. Para tal, disponibiliza-se também duas demonstrações que se pode testar e modificar para observar estas simulações. Como o utilizador verificará, os dois tipos de demonstrações, realistas e aspecto dos jogos <i>arcade</i> antigos, apenas variam nos valores fornecidos nos campos opcionais como já se explicou anteriormente.</p>
+					
+					<p>A demonstração presente em <a href="http://localhost:8082/demos/old_appearance_track_generator_simulator">http://localhost:8082/demos/old_appearance_track_generator_simulator/</a> demonstra o processo de criação de uma pista e dos respetivos ambientes circundantes com a aparência visual semelhante aos jogos <i>arcade</i> antigos. E a demonstração presente em <a href="http://localhost:8082/demos/old_appearance_arcade_game_simulator">http://localhost:8082/demos/old_appearance_arcade_game_simulator/</a> permite observar e testar esses ambientes. É possível verificar que não só a diferença nas imagens colocadas como objetos e obstáculos, mas também as fontes usadas para apresentar texto durante a simulação apresenta um aspecto mais "pixelizado" que é característico e comum na aparência pretendida.</p>
+					<p>Realça-se que para futuras experiências, apenas seja necessário correr o seguinte comando no terminal, <pre class="prettyprint source"><code>'cd ~/Desktop/PVSio/pvsio-web/ ; sh start.sh' </code></pre> ou <pre class="prettyprint source"><code>'cd ~/Desktop/PVSio/pvsio-web/ && sh start.sh' </code></pre></p>
+					<p>Se quiser simplificar esse processo, poderá fazê-lo da seguinte maneira,</p>
+					<pre class="prettyprint source"><code>1. Abra o ficheiro de configuração do terminal, <i>.bashrc</i> ou <i>.zshrc</i>, 
+e escreva a seguinte linha, 
+
+'alias pvsio-start="cd ~/Desktop/PVSio/pvsio-web/ ; sh start.sh"'</code></pre>
+					<p>Agora, sempre que quiser utilizar o simulador, apenas terá de abrir o terminal e correr, uma vez, o comando <i>'pvsio-start'</i>, e abrir o <i>browser</i> num dos endereços indicados anteriormente, de acordo com o que pretende efetuar. Por defeito, o comando irá abrir o endereço base da plataforma, <a href="http://localhost:8082/">http://localhost:8082/</a>, onde será visível uma das funcionalidades da plataforma relacionadas com a criação e simulação de aparelhos médicos. Como tal, será sempre necessário inserir um dos endereços, apresentados anteriormente nesta dissertação, da demonstação que pretende executar no separador que abriu automaticamente.</p> 
+				</li>
+        	</ul>
+        	 <p>Este guião baseou-se no anexo <i><strong>'Appendix A - How to install PVSio-web and run demos'</strong></i>, presente em <i><strong>Design and development of a co-simulation library for the PVSio-web prototyping tool</strong></i>, de <i>Piergiuseppe Mallozzi</i>, nas páginas 86 e 87, adaptado a esta dissertação. Em caso de dúvidas na utilização da ferramenta de gestão de versões, consulte mais informações em <a href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging</a>.</p>
+		</article>
+    </section>
+</div>
+
+<nav>
+    <h2>Tutorial</h2>
+    <h2><a href="tutorial-Arcade.html">Criação de uma nova simulação</a></h2>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Jul 23 2018 12:56:58 GMT+0100 (WEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

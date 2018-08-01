@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Simulador PVSio-web</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    <h1 class="page-title">Tutorial: Criação de uma nova simulação</h1>
+    <section>
+        <article>
+            <p>Neste apêndice será descrito um guia de utilização passo-a-passo do simulador de corridas desenvolvido. Mais documentação pode ser encontrada em <a href="https://zecarlos94.github.io/pvsio_web_2D_driving_simulator/car_docs/">https://zecarlos94.github.io/pvsio_web_2D_driving_simulator/car_docs/</a> e em <a href="https://zecarlos94.github.io/pvsio_web_2D_driving_simulator/car_private_api_docs/">https://zecarlos94.github.io/pvsio_web_2D_driving_simulator/car_private_api_docs/</a> ( ambos em inglês ).</p>
+            <h2>Criar uma Simulação Nova</h2>
+            <p>Nesta seção apresenta-se o guia de utilização passo-a-passo para criar uma nova pista, i.e. os novos ambientes circundantes a renderizar, com o <i> widget TrackGenerator</i> e, para renderizar, de seguida, a mesma com o <i> widget Arcade</i>.</p>
+            <p>O resultado final deverá ser uma renderização semelhante à que se apresenta na figura 1.</p>
+            <p>
+                <img src="img/demo-example.png" alt="demo-example" width="500" style="margin-left: 250px">
+                <figcaption style="margin-left: 270px">Figura 1 - <i>Screenshot</i> de uma Demonstração Arcade</figcaption>
+            </p>
+            <p>A figura 2 permitiu agrupar todas as imagens individuais numa só, tornando o simulador mais eficiente, devido ao menor número de leituras de ficheiros, e mais leve, visto que uma imagem ocupa menos espaço que um conjunto de imagens separadas. Para tal utilizou-se o conceito de <i>spritesheets</i> que será abordado mais à frente.</p>
+            <p>
+                <img src="img/demo-spritesheet.png" alt="demo-spritesheet" width="500" style="margin-left: 250px">
+                <figcaption style="margin-left: 200px">Figura 2 - <i>Spritesheet</i> usada para a Demonstração Arcade da Figura 1</figcaption>
+            </p>
+            <ul>
+                <li>
+                    <strong><h3>Etapas do utilizador, usando o <i>widget</i> de customização (mais fácil)</h3></strong>
+                    <p>Estas etapas são as etapas necessárias para a criação de uma nova simulação, dedicada aos utilizadores menos conscientes, onde o utilizador apenas terá de preencher os menus de customização, para personalizar a simulação, não definindo, portanto, os campos opcionais manualmente (não necessita de saber programar). 
+                    </p>
+                    <p>Um exemplo de valores possíveis para preencher esses menus de customização é apresentado em <a href="http://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations/CustomizationFieldsPossibleValues_Demo_Driving_Simulator.txt">http://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations/CustomizationFieldsPossibleValues_Demo_Driving_Simulator.txt</a>.</p>
+                    <p> Primeiro, abra o endereço <a href="http://localhost:8082/demos/driving_simulator/">http://localhost:8082/demos/driving_simulator/</a> no <i>browser</i> <strong>Google Chrome</strong>. Deverá ter aparecido no ecrã um conjunto de menus de customização que deverá preencher por forma a customizar a simulação desejada.</p>
+                    <ol>
+                        <li>
+                            <strong><h4>Selecione a imagem do volante, no menu apresentado na Figura 3, que pretende usar no <i>design</i> do painel de instrumentos automotivo, que será usado durante a simulação.</h4></strong>
+                            <p>
+                                <img src="img/selectSteeringWheel.png" alt="selectSteeringWheel" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 320px">Figura 3 - Menu de Seleção do Volante</figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Utilize os <i>color pickers</i>, no menu apresentado na Figura 4, para escolher as cores dos ambientes circundantes a renderizar posteriormente.</h4></strong>
+                            <p>
+                                <img src="img/selectTrackColors.png" alt="selectTrackColors" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 320px">Figura 4 - Menu de Seleção das Cores da Pista</figcaption>
+                            </p>
+                            <ul>
+                                <li> <i>grass1</i> é a cor da paisagem (verde claro na Figura 1)</li>
+                                <li> <i>border1</i> é a cor principal do delimitador (delimitador vermelho na Figura 1)</li>
+                                <li> <i>border2</i> é a cor secundária do delimitador (delimitador branco na Figura 1). Alterna entre a cor border1 e a cor border2, com base no número de segmentos definidos no campo opcional <i>numberOfSegmentPerColor</i>, que por padrão são <i>4</i> segmentos.</li>
+                                <li> <i>outborder1</i> é a cor do espaço entre a paisagem e a borda delimitadora da pista, ou seja, a berma (verde escuro na Figura 1)</li>
+                                <li> <i>outborder_end1</i> é a cor da borda do delimitador da pista (cinza escuro na Figura 1)</li>
+                                <li> <i>track_segment1</i> é a cor da pista (cinza claro na Figura 1)</li> 
+                                <li> <i>lane1</i> é a cor principal dos separadores de faixas na pista (faixas brancas dentro da pista na Figura 1)</li>
+                                <li> <i>lane2</i> é a cor secundária dos separadores de faixas na pista (faixas cinza claro dentro da pista, i.e. possui a mesma cor que a cor da pista, para ficar invisível ao alternar as cores, obtendo o efeito de linhas descontínuas. Para se obter linhas contínuas apenas será necessário fornecer a mesma cor a <i>lane1</i> e a <i>lane2</i>, na Figura 1)</li>
+                                <li> <i>laneArrow1</i> é a cor da seta guia apresentada no canto superior direito do simulador (seta verde na Figura 1)</li>
+                                <li> <i>track_segment_end</i> é a cor principal da linha de ínicio/fim da pista (listras pretas, na linha de ínicio/fim, na Figura 1)</li>
+                                <li> <i>lane_end</i> é a cor secundária da linha de ínicio/fim da pista (listras brancas, na linha de ínicio/fim, na Figura 1)</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><h4>Insira dentro dos parêntesis rectos, no menu apresentado na Figura 5, a topografia da pista, que será construída e renderizada.</h4></strong>
+                            <p>
+                                <img src="img/selectTrackTopography.png" alt="selectTrackTopography" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 190px">Figura 5 - Menu de Seleção da Topografia e Perfil de Elevação da Pista</figcaption>
+                            </p>
+                            <p>Utilize apenas as palavras-chave: <i>left</i>, <i>right</i> e <i>straight</i> para descrever a topografia da pista, depois da propriedade <i>name</i> e utilize apenas as palavras-chave: <i>flat</i>, <i>up</i> e <i>down</i> para descrever o perfil de elevação da pista depois da propriedade <i>profile</i>. Utilize ângulos, em graus, para definir o ângulo de curvatura depois da propriedade <i>curvature</i>. </p>
+                            <p>O ângulo 0 representa uma linha reta. Para representar curvaturas à esquerda, o ângulo deve estar entre 0 e -90. Para representar as curvaturas direitas, o ângulo deve estar entre 0 e 90. Este ângulo não representa o ângulo de curvatura final, mas será utilizado para calcular o mesmo, talvez como trabalho futuro se possa implementar essa funcionalidade.</p>
+                            <p>Na propriedade <i>numZones</i> deverá escrever o número de blocos consecutivos a contruir e a renderizar com essa topografia e perfil. Por exemplo, se colocar o número 2 e pretender criar uma curva plana à esquerda, i.e. <i>name: left</i> e <i>profile: flat</i>, então serão criados todos os segmentos necessários para renderizar 2 curvas planas à esquerda consecutivas na pista. Por defeito o valor deverá ser 1 para as curvas, visto que o maior benefício desta propriedade é permitir a construção de linhas retas com diferentes comprimentos, ao colocar blocos consecutivos de linhas retas, no entanto o utilizador pode fazer o que desejar. </p>
+                            <p>Para descrever os sinais de trânsito é necessário preencher a propriedade <i>trafficSignals</i>. Nesta propriedade o utilizador deverá fornecer os sinais (campos <i>filename</i>) a colocar, em que zona da topografia descrita, campos <i>zone</i>, serão colocados, em que posição horizontal, campos <i>posX</i>, serão colocados, qual a escala, campos <i>scale</i>, a aplicar a esses sinais e em que posição vertical serão colocados, isto é, a que distância da zona serão colocados, sendo que a distância máxima corresponde ao valor de <i>zoneSize</i> (tamanho máximo de cada zona).</p>
+ <pre class="prettyprint source"><code>  
+{
+    "filename":"50kmh_limit",
+    "zone": 1,
+    "scale": 2.3,
+    "posX": 0.4,
+    "zoneDistance": 50
+}</code></pre>
+                            <p>Por exemplo, o objeto, apresentado no excerto acima, representa o sinal de trânsito cujo nome coincide com o nome da imagem presente no ficheiro de mapeamento de coordenadas <i>JSON</i> da <i>spritesheet</i>. Ou seja, a imagem "50kmh_limit.png" encontra-se agrupada na <i>spritesheet</i> fornecida pelo utilizador.</p>
+                            <p>Este sinal de trânsito será colocado na zona 1, com a escala de 2.3, i.e. será ampliado 2.3 vezes em relação ao tamanho original, e será colocado na posição horizontal 0.4, i.e. no lado direito, e a uma distância de 50 em relação ao tamanho total da zona, que por defeito é 250. Então, verifica-se que este sinal de trânsito aparecerá na parte inicial da zona na topografia definida.</p>
+                            <p>O processo é semelhante para todos os restantes sinais de trânsito, sendo que o valor inserido no campo <i>zone</i> deverá ser sequencial, isto é, se o utilizador declarar mais que uma topografia, as zonas que compõem a topografia final (conjunto de todas as topografias) deverão ter numeração sequencial.</p>
+                            <p>Ou seja, o campo <i>zone</i> não diz respeito apenas à topografia local, mas sim à topografia global. Por exemplo, se <i>trackLayout</i> possuir três topografias, curva à esquerda, linha recta e curva à direita, e onde cada topografia possui o valor dois no campo <i>numZones</i>, i.e. a pista possuirá duas curvas à esquerda consecutivas, duas linha rectas consecutivas e duas curvas à direita consecutivas, o que perfaz um total de seis zonas.</p>
+                            <p>Então, ao definir os sinais de trânsito de cada uma das topografias será necessário identificar no campo <i>zone</i> o valor de um a seis em vez de um a dois. Isto é, se a topografia curva à esquerda tiver um sinal de trânsito, este deverá ter o valor um ou dois no campo <i>zone</i> e se a topografia curva à direita tiver um sinal de trânsito, este deverá ter o valor cinco ou seis no campo <i>zone</i>.</p>
+                        </li>
+                        <li>
+                            <strong><h4>Insira o nome do ficheiro de configuração <i>JSON</i> da <i>spritesheet</i>, no menu apresentado na Figura 6. Ou seja, forneça o nome do ficheiro com o mapeamento de coordenadas da imagem <i>spritesheet</i>, que agrupa todos os <i>sprites</i> utilizados na simulação.</h4></strong>
+                            <p>
+                                <img src="img/selectSpritesheetJSON.png" alt="selectSpritesheetJSON" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 220px">Figura 6 - Menu de Seleção do Ficheiro <i>JSON</i> de Mapeamento de Coordenadas da Imagem <i>Spritesheet</i></figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Insira o nome da imagem <i>spritesheet</i>, no menu apresentado na Figura 7, que agrupa todos os <i>sprites</i> utilizados na simulação.</h4></strong>
+                            <p>Caso pretenda uma simulação <i>arcade</i>, deverá fornecer o nome das duas imagens <i>spritesheet</i> necessárias, uma com os <i>sprites</i> das letras (fonte a utilizar) e outra com todos os objetos e obstáculos a renderizar.</p>
+                            <p>No caso de desejar uma simulação realista será apenas necessário fornecer a imagem <i>spritesheet</i> com todos os objetos e obstáculos a renderizar. Este tipo de simulação é escolhida num campo opcional do <i> widget Arcade</i>, que será abordado no tutorial para os utilizadores mais conscientes.</p>
+                            <p>
+                                <img src="img/selectSpritesheetImages.png" alt="selectSpritesheetImages" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 220px">Figura 7 - Menu de Seleção das Imagens <i>Spritesheet</i></figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Insira entre os parêntesis rectos, no menu apresentado na Figura 8, os <i>sprites</i> a colocar na paisagem, separados por ','. Por exemplo, se o utilizador desejar colocar apenas àrvores na paisagem, cuja imagem possui o nome <i>"tree.png"</i>, na imagem <i>spritesheet</i>, fornecida no menu apresentado na Figura 7, o utilizador deverá colocar <i>"tree"</i> no campo <i>filename</i>, colocar o respetivo valor da escala a aplicar a esta àrvore no campo <i>scale</i> e colocar as posições horizontais onde poderá ser colocado no campo <i>positionsX</i>.</h4></strong>
+                            <p>
+                                <img src="img/selectLandscapeObjects.png" alt="selectLandscapeObjects" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 220px">Figura 8 - Menu de Seleção dos Objectos da Paisagem</figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Insira entre os parêntesis rectos, no menu apresentado na Figura 9, os <i>sprites</i> a colocar dentro da pista, isto é, os obstáculos a contornar na simulação, separados por ','. Por exemplo, se o utilizador desejar colocar apenas pedras como obstáculos dentro da pista, cuja imagem possui o nome <i>"rock2.png"</i>, na imagem <i>spritesheet</i>, fornecida no menu apresentado na Figura 7, o utilizador deverá colocar <i>"rock2"</i> no campo <i>filename</i>, colocar o respetivo valor da escala a aplicar a esta pedra dentro da pista <i>scale</i> e colocar as posições horizontais onde poderá ser colocado dentro dos limites da pista <i>positionsX</i>.</h4></strong>
+                            <p>
+                                <img src="img/selectTrackObstacles.png" alt="selectTrackObstacles" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 220px">Figura 9 - Menu de Seleção dos Obstáculos dentro da Pista</figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Preencha os parâmetros necessários à simulação, apresentados no menu na Figura 10. O parâmetro <i>numZones</i> deverá ter o número total de blocos a renderizar, que será igual à soma de todos os parâmetros <i>numZones</i> fornecidos na definição da topografia, numa das etapas anteriores. O parâmetro <i>zoneSize</i> deverá possuir o comprimento de cada bloco a renderizar, por defeito o valor é 250.</h4></strong>
+                            <p>
+                                <img src="img/selectTrackParams.png" alt="selectTrackParams" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 220px">Figura 10 - Menu de Seleção dos Parâmetros da Pista</figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Indicar o veículo a utilizar na simulação, no menu na Figura 11, presente no ficheiro de configuração <i>JSON</i> e na imagem <i>spriteheet</i> fornecidos, nas etapas 4 e 5. Os tipos de veículo disponíveis são <i>airplane</i>, <i>bicycle</i>, <i>car</i>, <i>helicopter</i> e <i>motorbike</i>.</h4></strong>
+                            <p>Contudo para escolher o veículo será necessário que este exista nos ficheiros supracitados, para que o motor de renderização saiba onde pode ir recolher a imagem desse veículo. Por exemplo, se o ficheiro de configuração <i>JSON</i> e a imagem <i>spriteheet</i> possuírem as três imagens de um helicóptero, isto é, as imagens com o helicóptero virado para a frente, para a esquerda e para a direita, cujos nomes das imagens são <i>"helicopter_faced_front.png"</i>, <i>"helicopter_faced_left.png"</i> e <i>"helicopter_faced_right.png"</i>, tal como já foi explicado no capítulo de implementação, então o utilizador deverá escrever <i>true,false,"helicopter",1</i>. </p>
+                            <ul>
+                                <li>O valor <i>true</i> indica que a simulação deverá mostrar a imagem do veículo escolhido pelo utilizador. </li>
+                                <li>O valor <i>false</i> indica que as imagens a utilizar na simulação não são realistas, ou seja, o utilizar está a indicar que a simulação será do tipo <i>arcade</i>, i.e. com gráficos semelhantes aos jogos de <i>arcade</i> antigos. </li>
+                                <li>O valor 1 indica o índice da imagem. Se o utilizador colocar 1, o motor de renderização irá procurar as imagens <i>"helicopter1_faced_front.png"</i>, <i>"helicopter1_faced_left.png"</i> e <i>"helicopter1_faced_right.png"</i> e caso não encontre nenhuma, irá procurar, por defeito, por <i>"helicopter_faced_front.png"</i>, <i>"helicopter_faced_left.png"</i> e <i>"helicopter_faced_right.png"</i>. </li>
+                            </ul>
+                            <p>Caso o utilizador pretenda uma simulação realista, deverá escrever <i>true,true,"real\_helicopter",1</i>, onde as imagens <i>"real_helicopter1_faced_front.png"</i>, <i>"real_helicopter1_faced_left.png"</i> e <i>"real_helicopter1_faced_right.png"</i> deverão existir no ficheiro de configuração <i>JSON</i> e na imagem <i>spriteheet</i>.</p>
+                            <p>De igual forma, se estas imagens não forem encontradas, o motor de renderização irá procurar <i>"real_helicopter_faced_front.png"</i>, <i>"real_helicopter_faced_left.png"</i> e <i>"real_helicopter_faced_right.png"</i>.</p>
+                            <p>Caso o utilizador pretenda que a simulação não renderize a imagem do veículo realista deverá escrever <i>false,true,"real_helicopter",1</i>.</p>
+                            <p>
+                                <img src="img/selectArcadeVehicle.png" alt="selectArcadeVehicle" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 280px">Figura 11 - Menu de Seleção do Veículo</figcaption>
+                            </p>
+                        </li>
+                        <li>
+                            <strong><h4>Selecione outras opções de customização para os <i>widgets</i> do painel de instrumentos automotivo, que serão renderizados na simulação, e outros aspetos de renderização utilizando os seguintes <i>sliders</i>, na Figura 12.</h4></strong>
+                            <p>
+                                <img src="img/selectRanges.png" alt="selectRanges" width="500" style="margin-left: 250px">
+                                <figcaption style="margin-left: 310px">Figura 12 - Menu de Seleção de Intervalos</figcaption>
+                            </p>
+                            <ul>
+                               <li>Selecione os valores máximos que os <i>widgets Speedometer</i> e <i>Tachometer</i> terão, nos intervalos <i>'Value of Speedometer'</i> e <i>'Value of Tachometer'</i>, na Figura 13. Se os valores indicados nestes intervalos forem 200 e 9, respetivamente, e se o volante selecionado for o volante <i>porsche</i> (volante roxo), então o painel de instrumentos automotivo final, que será utilizado durante a simulação, será o painel apresentado na Figura 14.</li> 
+                                <p>
+                                    <img src="img/selectRangesSpeedometerTachometer.png" alt="selectRangesSpeedometerTachometer" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 220px">Figura 13 - Menu de Seleção dos Intervalos dos <i>widgets Speedometer</i> e <i>Tachometer</i></figcaption>
+                                </p>
+                                <p>
+                                    <img src="img/customizationResult.png" alt="customizationResult" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 350px">Figura 14 - Resultado da Customização</figcaption>
+                                </p>
+                                <li>Selecione o número desejado de faixas, a renderizar dentro da pista durante a simulação, no intervalo <i>'Number of Lanes'</i>, na Figura 15.</li> 
+                                <p>
+                                    <img src="img/selectRangeLanes.png" alt="selectRangeLanes" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 250px">Figura 15 - Menu de Seleção do Número de Faixas na Pista</figcaption>
+                                </p>
+                                <li>Selecione a frequência dos obstáculos, na Figura 16, a serem colocados dentro da pista, durante a simulação, no intervalo <i>'Frequence of Obstacles'</i>, ou seja, escolha em quantas iterações um novo obstáculo surge.</li>
+                                <p>
+                                    <img src="img/selectRangesObstacles.png" alt="selectRangesObstacles" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 250px">Figura 16 - Menu de Seleção da Frequência dos Obstáculos</figcaption>
+                                </p>
+                                <li>Selecione o número desejado de voltas, na Figura 17, a ser renderizado pelo <i>widget Arcade</i> durante a simulação, no intervalo <i>'Number of Laps'</i>.</li>
+                                <p>
+                                    <img src="img/selectLaps.png" alt="selectLaps" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 250px">Figura 17 - Menu de Seleção do Número de Voltas</figcaption>
+                                </p>
+                                <li>Escolha se o <i>widget Arcade</i> usará as instruções do <i>PVS</i> durante a simulação, na Figura 18. Por padrão, valor 0, usará instruções do <i>PVS</i> para atualizar o estado do veículo durante a simulação. Este intervalo permite testar a diferença na velocidade dos processos de renderização, já que as instruções do <i>PVS</i> tornam a simulação mais lenta do que calcular esses valores internamente no <i>widget</i>.</li>
+                                <p>
+                                    <img src="img/selectPVS.png" alt="selectPVS" width="500" style="margin-left: 250px">
+                                    <figcaption style="margin-left: 230px">Figura 18 - Menu de Seleção da Utilização das Instruções <i>PVS</i></figcaption>
+                                </p>
+                                <li>Para terminar a customização, deslize o último intervalo, na Figura 19, para a direita. Após essa ação, deverá surgir no ecrã o conjunto de <i>widgets</i>, de acordo com a customização realizada. Caso o ecrã fique branco, o utilizador deverá refrescar o <i>browser</i>, visto que o último poderá não ter lido a totalidade dos ficheiros de configuração, por exemplo, devido a uma conexão à <i>internet</i> pior.</li>
+                                <p>
+                                    <img src="img/endRange.png" alt="endRange" width="150" style="margin-left: 420px">
+                                    <figcaption style="margin-left: 250px">Figura 19 - Slider para Terminar a Customização</figcaption>
+                                </p>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p>Embora não tenha sido um objetivo nesta dissertação, o <i>widget Customization</i> foi criado para facilitar o processo de simulação. No entanto, como tal não era uma prioridade, esse <i>widget</i> poderá ser aprimorado no futuro.</p>
+                    <p>Por exemplo, adicionar outras opções de customização, que correspondam aos campos opcionais que os <i>widgets TrackGenerator</i> e <i>Arcade</i> possuem, e que não são preenchidos com os atuais menus.</p>
+                </li>
+
+                <li>
+                    <strong><h3>Etapas do utilizador, com apenas configurações manuais (mais difícil)</h3></strong>
+                    <p>Estas etapas são dedicadas aos utilizadores mais conscientes, ou seja, o utilizador deverá ter conhecimentos de programação minímos, visto que é este que define, manualmente, todos os campos opcionais e que utiliza as <i>APIs</i> desenvolvidas, no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js</a>.</p>
+                    <p>Atualmente é possível testar a demonstração <i>arcade</i>, em <a href="http://localhost:8082/demos/old_appearance_arcade_game_simulator/">http://localhost:8082/demos/old_appearance_arcade_game_simulator/</a>, para testar as interações <i>PVS-widget Arcade</i>, i.e. utilizar o estado <i>PVS</i> para atualizar o estado do <i>widget Arcade</i>.</p>
+                    <p>Na demonstração <a href="http://localhost:8082/demos/old_appearance_track_generator_simulator/">http://localhost:8082/demos/old_appearance_track_generator_simulator/</a> é possível criar uma nova pista <i>arcade</i> utilizando o <i>widget TrackGenerator</i>.</p>
+                    <p>É nesta demonstração que o utilizador pode criar a pista desejada, utilizando os métodos que geram a pista aleatoriamente ou utilizando os métodos que geram a pista com base no <i>layout</i> fornecido. O excerto de código apresentado a seguir descreve a criação de uma pista que é composta por um bloco de uma curva plana à esquerda, seguida de um bloco de linha reta para baixo, seguida de uma curva plana à direita.</p>
+                    <pre class="prettyprint source"><code>let trackGenerator = {};
+trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget", 
+{
+    top: 80,
+    left: 650,
+    width: 780,
+    height: 650
+}, 
+
+{
+    parent: "content", // defines parent div, which is div id="body" by default
+    spritesFilename: "spritesheet", // defines spritesheet configuration filename, which is "spritesheet.json" by default
+    render: {
+        depthOfField: 150,
+        camera_distance: 30,
+        camera_height: 270
+    },
+    trackSegmentSize: 5,
+    numberOfSegmentPerColor: 4,
+    numLanes: 3,
+    laneWidth: 0.02,
+    trackParam: {
+        numZones:    3, // number of different portions of the track
+        zoneSize:  250 // length of each numZones (the bigger this value. the longer it will take to finish)
+    },
+    // Information regarding current controllable_vehicle's car
+    controllable_vehicle: {
+        position: 10,
+        speed: 0,
+        acceleration: 0.05,
+        deceleration: 0.3,
+        breaking: 0.6,
+        turning: 5.0,
+        posx: 0,
+        maxSpeed: 15
+    },
+    objects: [
+        {
+            filename:"tree",
+            scale: 3.5,
+            positionsX: [
+                -2.4,
+                2.3
+            ]
+        },
+        {
+            filename:"stump",
+            scale: 3.5,
+            positionsX: [
+                -2.9,
+                4.2
+            ]
+        },
+        {
+            filename:"boulder",
+            scale: 3.5,
+            positionsX: [
+                -1.8,
+                1.6
+            ]
+        },
+        {
+            filename:"tree2",
+            scale: 3.5,
+            positionsX: [
+                -1.6,
+                1.8
+            ]
+        },
+        {
+            filename:"brunetteGirlBack",
+            scale: 6,
+            positionsX: [
+                -1.7,
+                1.9
+            ]
+        },
+        {
+            filename:"bush2",
+            scale: 6,
+            positionsX: [
+                -1.9,
+                1.7
+            ]
+        },
+        {
+            filename:"hatManBack",
+            scale: 7,
+            positionsX: [
+                2.9,
+                -2.7
+            ]
+        }
+    ],
+    obstacle: [
+        {
+            filename:"dead_tree2",
+            scale: 2.75,
+            positionsX: [
+                0.4
+            ]
+        },
+        {
+            filename:"column",
+            scale: 2.75,
+            positionsX: [
+                0.4
+            ]
+        },
+        {
+            filename:"dearRight",
+            scale: 1.75,
+            positionsX: [
+                -0.4,
+                0.4,
+                -0.3,
+                0.2,
+                0
+            ]
+        }
+    ],
+    obstaclePerIteration: 20,
+    trackColors: {
+        grass1: "#699864",
+        border1: "#e00",
+        border2: "#fff",
+        outborder1: "#496a46",
+        outborder_end1: "#474747",
+        track_segment1: "#777",
+        lane1: "#fff",
+        lane2: "#777",
+        laneArrow1: "#00FF00",
+        track_segment_end:"#000",
+        lane_end: "#fff"
+    },
+    trackLayout: [ 
+        {
+            topography: {
+                name:"left",
+                curvature: -90
+            },
+            profile: "flat",
+            numZones: 1,
+            trafficSignals: []
+        },
+        {
+            topography: {
+                name:"straight",
+                curvature: 0
+            },
+            profile: "down",
+            numZones: 1,
+            trafficSignals: []
+        },
+        {
+            topography: {
+                name:"right",
+                curvature: 90
+            },
+            profile: "flat",
+            numZones: 1,
+            trafficSignals: []
+        },
+    ],
+    callback: onMessageReceived
+});</code></pre><blockquote>
+                <p>O primeiro argumento do construtor é o identificador do <i>widget</i>. O segundo argumento são as coordenadas onde o <i>widget</i> será colocado. E o terceiro argumento são os campos opcionais onde o utilizador define as características do novo ambiente de teste a criar, e que será renderizado posteriormente pelo <i>widget Arcade</i>.</p>
+                <ul>
+                    <li>O campo opcional <i>spritesFilename</i> é o ficheiro de configuração <i>JSON</i> que possui o mapeamento de coordenadas das várias imagens que compõem a imagem da <i>spritesheet</i>.</li>
+                    <li>O campo opcional <i>render</i> possui as configurações de renderização necessárias para o posicionamento da câmara.</li>
+                    <li>O campo opcional <i>trackSegmentSize</i> é o tamanho de cada segmento a criar, que irá influenciar a distância final a percorrer.</li>
+                    <li>O campo opcional <i>numberOfSegmentPerColor</i> É o valor <i>x</i> que a cada <i>x</i> segmentos alterna as cores das listras de pista e dos delimitadores de pista, i.e. alterna da cor primária para a cor secundária e vice-versa.</li>
+                    <li>O campo opcional <i>numLanes</i> é o número de faixas a criar dentro da pista.</li>
+                    <li>O campo opcional <i>laneWidth</i> é a largura de cada listra, que separa as faixas criadas dentro da pista.</li>
+                    <li>O campo opcional <i>controllable_vehicle</i> é o conjunto de informações que permitem calcular as posições do veículo, caso o estado não seja atualizado pelo estado <i>PVS</i> por opção do utilizador, num outro campo opcional.</li>
+                    <li>O campo opcional <i>objects</i> são os nomes das imagens dos objetos a colocar na paisagem, bem como o valor da escala a aplicar e as posições horizontais onde poderão ser colocados. Por cada nome colocado, deverá existir uma imagem na imagem da <i>spritesheet</i>, com a extensão <i>PNG</i>, que deverá coincidir com o valor da propriedade <i>"filename"</i> do ficheiro de configuração fornecido. Por exemplo, se o utilizador colocar <i>"tree"</i>, deverá existir uma propriedade <i>"filename":"tree.png"</i> no ficheiro de mapeamento de coordenadas fornecido.</li>
+                    <li>O campo opcional <i>obstacle</i> são os nomes das imagens dos obstáculos a colocar dentro da pista, que deverão ser contornados, bem como o valor da escala a aplicar e as posições horizontais onde poderão ser colocados. Por cada nome colocado, deverá existir uma imagem na imagem da <i>spritesheet</i>, com a extensão <i>PNG</i>, que deverá coincidir com o valor da propriedade <i>"filename"</i> do ficheiro de configuração fornecido. Por exemplo, se o utilizador colocar <i>"rock"</i>, deverá existir uma propriedade <i>"filename":"rock.png"</i> no ficheiro de mapeamento de coordenadas fornecido. </li>
+                    <li>O campo opcional <i>obstaclePerIteration</i> é o valor <i>x</i> que a cada <i>x</i> iterações coloca um novo obstáculo dentro da pista.</li>
+                    <li>O campo opcional <i>trackColors</i> possui o conjunto de cores que irão compor a renderização posterior pelo <i>widget Arcade</i>.</li>
+                    <li>O campo opcional <i>trackLayout</i> possui o <i>layout</i> da pista que se pretende criar e renderizar. Caso o utilizador pretenda utilizar uma das <i>APIs</i> de criação aleatória não será necessário fornecer este campo.</li>
+                    <li>O campo opcional <i>trackParam</i> possui os campos que permitem inferir o tamanho final da pista a criar.</li>
+                </ul>
+                <p>Após a instanciação do <i>widget</i>, apenas será necessário invocar a <i>API</i> necessária para criar o ficheiro de configuração <i>JSON</i> que será fornecido ao <i>widget Arcade</i> com todos os segmentos que constituem a pista desejada e com todas as informações acerca da renderização desejada, como por exemplo, as cores da pista e as propriedades que permitem posicionar a câmara. O utilizador deverá escolher uma das seguintes <i>APIs</i>,</p>
+                <ul>
+                    <li>A <i>API</i> que permite criar uma pista e os ambientes em seu redor, aleatoriamente, com apenas linhas retas encontra-se no excerto de código a seguir, cujo nome é <i>GenerateStraightTrack</i>. Relembra-se que para utilizar esta <i>API</i>, não será necessário fornecer o <i>layout</i> da pista, visto que não será utilizado.</li>
+                    <pre class="prettyprint source"><code>trackGenerator.trackGeneratorWidget.generateStraightTrack();</code></pre>
+                    <li>A <i>API</i> que permite criar uma pista e os ambientes em seu redor, aleatoriamente, com linhas retas e curvas, com perfis de elevação, encontra-se no excerto de código a seguir, cujo nome é <i>GenerateTrackCurvesSlopes</i>. Relembra-se que para utilizar esta <i>API</i>, não será necessário fornecer o <i>layout</i> da pista, visto que não será utilizado.</li>
+                    <pre class="prettyprint source"><code>trackGenerator.trackGeneratorWidget.generateTrackCurvesSlopes();</code></pre>
+                    <li>A <i>API</i> que permite criar uma pista e os ambientes em seu redor, com base no <i>layout</i> desejado, encontra-se no excerto de código a seguir, cujo nome é <i>GenerateTrackBasedOnTrackLayoutOptField</i>. </li>
+                    <pre class="prettyprint source"><code>trackGenerator.trackGeneratorWidget.generateTrackBasedOnTrackLayoutOptField();</code></pre>
+                </ul>
+                <p>No caso de o utilizador apenas instanciar o construtor do <i>widget TrackGenerator</i> para criar a pista e os ambientes em seu redor e não inserir nenhum campo opcional, o <i>widget</i> utilizará os valores predefinidos apresentados no seguinte excerto de código,
+                </p>
+                <pre class="prettyprint source"><code>parent: "body",
+spritesFilename: "spritesheet",
+render: {depthOfField: 150,camera_distance: 30,camera_height: 320},
+trackSegmentSize: 5,
+numberOfSegmentPerColor: 4,
+numLanes: 3,
+laneWidth: 0.02,
+trackParam: {numZones:  12,zoneSize:  250},
+controllable_vehicle: {
+    position: 10,
+    speed: 0,
+    acceleration: 0.05,
+    deceleration: 0.3,
+    breaking: 0.6,
+    turning: 5.0,
+    posx: 0,
+    maxSpeed: 15
+},
+objects: [],
+obstacle: [],
+obstaclePerIteration: 50,
+trackColors: {
+    grass1: "#699864",
+    border1: "#e00",
+    border2: "#fff",
+    outborder1: "#496a46",
+    outborder_end1: "#474747",
+    track_segment1: "#777",
+    lane1: "#fff",
+    lane2: "#777",
+    laneArrow1: "#00FF00",
+    track_segment_end:"#000",
+    lane_end: "#fff"
+},
+trackLayout: []</code></pre>
+                    <p> A invocação de uma das <i>APIs</i> supracitadas resulta na criação de um ficheiro de configuração <i>JSON</i> com a estrutura apresentada no próximo excerto de código, que será fornecido ao <i>widget Arcade</i>, onde o utilizador poderá visualizar e simular a pista e os ambientes que a rodeia. </p>
+                    <pre class="prettyprint source"><code>generatedJSON = {
+    controllable_vehicle: controllable_vehicle,
+    laneWidth: laneWidth,
+    numLanes: numLanes,
+    numberOfSegmentPerColor: numberOfSegmentPerColor,
+    render: render,
+    track: generatedTrack,
+    trackParam: trackParam, 
+    trackSegmentSize: trackSegmentSize,
+    trackColors: trackColors
+};</code></pre>
+                <p> Atualmente, a plataforma <i>PVSio-web</i> não possui <i>APIs</i> de escrita de ficheiros, no contexto de <i>widgets</i>. Como tal, o <i>widget TrackGenerator</i> não pode escrever o ficheiro de configuração <i>JSON</i>apresentado no excerto de código anterior.</p>
+                <p>É por esta razão que a demonstração para os utilizadores menos conscientes, i.e. a que fornece menus de customização, ainda não está a renderizar a pista criada nesses menus de customização, apesar de já estar a apresentar os restantes componentes da simulação customizados.</p>
+                <p>Então, é necessário que o utilizador execute um <i>console.log(JSON.stringify(self2.generatedJSON))</i> e copie e cole, manualmente, o resultado obtido num ficheiro de configuração <i>JSON</i> vazio. Ou seja, é o utilizador precisa de efetuar a ação manualmente que uma das futuras <i>APIs</i> de escrita de ficheiros irá realizar, quando for devidamente implementada pela plataforma.</p>
+                <p>Quando a <i>API</i> de escrita de ficheiros, no contexto de <i>widgets</i>, existir, esta deverá ser incluída nas linhas que possuam <i>console.log(JSON.stringify(self2.generatedJSON))</i> (linhas 694, 1006 e 1242). Essa <i>API</i> de escrita de ficheiros, no contexto de <i>widgets</i>, deverá retornar o nome do ficheiro recém-criado, para que esse possa ser usado automaticamente no <i>widget Customization</i>, por forma a ligar os <i>widgets TrackGenerator</i> e <i>Arcade</i></p>
+                <p>Isto é, por forma a criar uma nova pista e ambientes que a rodeia e a renderizar de seguida a mesma. Para obter informações mais detalhadas, consulte o ficheiro do <i>widget Customization</i> em <a href="https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/Customization.js">https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/Customization.js</a> (linha 1788 deverá ter o valor resultante da invocação presente na linha 1774, i.e. o valor devolvido pela <i>API</i> de escrita de ficheiros).</p>
+                <p>Após a criação do ficheiro de configuração <i>JSON</i> supramencionado é, então, possível renderizá-lo com o <i>widget Arcade</i>.</p>
+
+                </li>
+            </ul>
+
+
+        </article>
+    </section>
+</div>
+
+<nav>
+    <h2><i>Setup</i> Inicial</h2>
+    <h2><a href="index.html">Simulador 2D de Corridas em PVSio-web</a></h2>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Jul 23 2018 12:56:58 GMT+0100 (WEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
