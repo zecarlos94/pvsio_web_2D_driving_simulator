@@ -191,7 +191,7 @@
 
                 <li>
                     <strong><h3>Etapas do utilizador, com apenas configurações manuais (mais difícil)</h3></strong>
-                    <p>Estas etapas são dedicadas aos utilizadores mais conscientes, ou seja, o utilizador deverá ter conhecimentos de programação minímos, visto que é este que define, manualmente, todos os campos opcionais e que utiliza as <i>APIs</i> desenvolvidas, no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js</a>.</p>
+                    <p>Estas etapas são dedicadas aos utilizadores mais conscientes, ou seja, o utilizador deverá ter conhecimentos de programação minímos, visto que é este que define, manualmente, todos os campos opcionais e que utiliza as <i>APIs (Application programming interface)</i> desenvolvidas, no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/js/index.js</a>.</p>
                     <p>Atualmente é possível testar a demonstração <i>arcade</i>, em <a href="http://localhost:8082/demos/old_appearance_arcade_game_simulator/">http://localhost:8082/demos/old_appearance_arcade_game_simulator/</a>, para testar as interações <i>PVS-widget Arcade</i>, i.e. utilizar o estado <i>PVS</i> para atualizar o estado do <i>widget Arcade</i>.</p>
                     <p>Na demonstração <a href="http://localhost:8082/demos/old_appearance_track_generator_simulator/">http://localhost:8082/demos/old_appearance_track_generator_simulator/</a> é possível criar uma nova pista <i>arcade</i> utilizando o <i>widget TrackGenerator</i>.</p>
                     <p>É nesta demonstração que o utilizador pode criar a pista desejada, utilizando os métodos que geram a pista aleatoriamente ou utilizando os métodos que geram a pista com base no <i>layout</i> fornecido. O excerto de código apresentado a seguir descreve a criação de uma pista que é composta por um bloco de uma curva plana à esquerda, seguida de um bloco de linha reta para baixo, seguida de uma curva plana à direita.</p>
@@ -442,9 +442,731 @@ trackLayout: []</code></pre>
                 <p>Isto é, por forma a criar uma nova pista e ambientes que a rodeia e a renderizar de seguida a mesma. Para obter informações mais detalhadas, consulte o ficheiro do <i>widget Customization</i> em <a href="https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/Customization.js">https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/Customization.js</a> (linha 1788 deverá ter o valor resultante da invocação presente na linha 1774, i.e. o valor devolvido pela <i>API</i> de escrita de ficheiros).</p>
                 <p>Após a criação do ficheiro de configuração <i>JSON</i> supramencionado é, então, possível renderizá-lo com o <i>widget Arcade</i>.</p>
 
+                <p>Para renderizar a pista desejada e os ambientes que a rodeia, criados anteriormente pelo <i>widget TrackGenerator</i> é necessário instanciar o <i>widget Arcade</i> e preencher os respetivos campos opcionais, bem como criar todos os botões que permitem interargir com a simulação (acelerar, travar, etc) e instanciar os componentes do painel de instrumentos automotivo que se deseja testar (velocímetro, tacómetro e volante), como exemplificado nos excertos de código que se apresentam a seguir.</p>
+
+                <p>Para criar os botões que permitem interargir com a simulação utiliza-se o construtor do <i>widget ButtonExternalController</i>, que recebe como primeiro argumento o identificador do botão, que corresponderá ao nome da função especificada formalmente no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs</a>, na demonstração do tipo <i>arcade</i> explicada anteriormente, com a linguagem formal <i>PVS</i>.</p>
+                <p>O segundo argumento diz respeito à posição do botão, i.e. as coordenadas onde será colocado. E, por fim, o terceiro argumento são os campos opcionais que permitem identificar se o evento a criar no botão é do tipo <i>press/release</i> ou <i>click</i>, que influencia diretamente o nome da função especificada formalmente supracitada, e identificar a qual tecla física é que o botão está associado.</p>
+
+                <p>Por exemplo, o botão <i>accelerate</i>, está associado à tecla com o <i>keyCode</i> 38, que corresponde à tecla de seta para cima no teclado físico. Neste exemplo, visto que o evento do botão é definido como <i>['press/release']</i>, no ficheiro de especificação formal, deverá existir as funções <i>press_accelerate</i> e <i>release_accelerate</i>, que determinam o comportamento do botão quando cada um desses eventos é despoletado. Por defeito, se o construtor não receber o campo opcional <i>evts</i>, o evento é definido como <i>['click']</i>, o que obriga a que a função <i>click_accelerate</i> exista. O excerto de código a seguir demonstra a declaração não só do botão <i>accelerate</i>, mas também dos restantes botões que constituem a presente demonstração, por forma a que se possa testar os <i>designs</i> dos painéis automotivos com o comportamento semelhante ou igual aos comportamentos dos componentes reais.</p>  
+                <pre class="prettyprint source"><code>let arcade = {};
+// --- DASHBOARD INTERACTION
+arcade.up = new ButtonExternalController("accelerate", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 38 // key up
+});
+arcade.down = new ButtonExternalController("brake", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 40 // key down
+});
+
+// --- ARCADE SIMULATOR INTERACTION
+arcade.resume = new ButtonExternalController("resume", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 32 // key space
+});
+arcade.pause = new ButtonExternalController("pause", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 83 // key 's'
+});
+arcade.quit = new ButtonExternalController("quit", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 81 // key 'q'
+});
+arcade.mute = new ButtonExternalController("mute", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 77 // key 'm'
+});
+arcade.unmute = new ButtonExternalController("unmute", { width: 0, height: 0 }, {
+    callback: onMessageReceived,
+    evts: ['press/release'],
+    keyCode: 85 // key 'u'
+});</code></pre>
+    
+        <p>Para instanciar os componentes do painel de instrumentos automotivo, velocímetro, tacómetro e volante, o utilizador deverá instanciar os construtores <i>Speedometer</i>, <i>Tachometer</i> e <i>SteeringWheel</i>. Os construtores <i>Speedometer</i> e <i>Tachometer</i> recebem como primeiro argumento o identificador do <i>widget</i> que será utilizado para criar a <i>div</i> com todos os componentes desses medidores, cuja construção foi conseguida utilizando a biblioteca <i>d3-gauges</i>. Como segundo argumento recebem as coordenadas onde deverão ser colocados. E como terceiro argumento, recebem os campos opcionais que permitem diferenciar a aparência do medidor, que é definida pelos intervalos fornecidos em <i>min</i> e <i>max</i>, cuja unidade/métrica é fornecida em <i>label</i>. De seguida, apresenta-se o excerto de código com a instanciação dos três <i>widgets</i> que correspondem aos componentes do painel de instrumentos automotivo, velocímetro, tacómetro e volante.</p>
+        <pre class="prettyprint source"><code>// --- DASHBOARD COMPONENTS
+// --- SPEEDOMETER
+arcade.speedometerGauge = new Speedometer('speedometer-gauge', {
+    label: "kmh",
+    max: 260,
+    min: 0
+});
+// --- TACHOMETER
+arcade.tachometerGauge = new Tachometer('tachometer-gauge', {
+    max: 9,
+    min: 0,
+    label: "x1000/min"
+});
+
+// --- STEERING WHEEL
+arcade.steeringWheel = new SteeringWheel("steering_wheel", {
+    top: 220,
+    left: 20,
+    width: 600,
+    height: 600
+}, {
+    style: "ferrari",
+    callback: onMessageReceived
+});
+</code></pre>
+
+            <p>Para instanciar o <i>widget Arcade</i>, o utilizador deverá  invocar o construtor <i>Arcade</i>, cujo primeiro argumento é o identificador do <i>widget</i> e o segundo argumento as coordenadas onde este será colocado. Por último, o terceiro argumento, são os campos opcionais que permitem configurar a simulação gráfica, i.e. que permitirá ao utilizador visualizar a pista e os ambientes que a rodeia. O excerto de código seguinte demonstra a instanciação do <i>widget Arcade</i>, que permitirá visualizar os ambientes circundantes criados anteriormente, pelo <i>widget TrackGenerator</i>, e parametrizados no respetivo ficheiro <i>JSON</i> fornecido num campo opcional desta instaciação.</p>
+
+            <pre class="prettyprint source"><code>// ---ARCADE SIMULATOR
+arcade.arcadeWidget = new Arcade("arcadeWidget", 
+{
+    top: 0,
+    left: 630,
+    width: 800,
+    height: 600
+}, 
+{
+    parent: "content", // defines parent div, which is div id="body" by default
+    scaleWindow: 1, // scales canvas div
+    trackFilename: "trackLayoutArcade2", // defines track configuration filename, which is "track-curves-slopes-random.json" by default
+    spritesFilename: "spritesheet", // defines spritesheet configuration filename, which is "spritesheet.json" by default
+    spritesFiles: ["spritesheet","spritesheet.text"], // defines all spritesheets(images). Default are "spritesheet.png" and "spritesheet.text.png"
+    realisticImgs: false,
+    useVehicle: true,
+    vehicle: "car", // available vehicles: ["airplane","bicycle","car","helicopter","motorbike"]
+    vehicleImgIndex: 1, // defines vehicle sprite image suffix
+    logoImgIndex: 3, // defines logo sprite image suffix
+    backgroundImgIndex: 1, // defines background sprite image suffix
+    stripePositions: {
+        trackP1: -0.55,
+        trackP2: 0.55,
+        borderWidth: 0.08,
+        inOutBorderWidth: 0.02,
+        landscapeOutBorderWidth: 0.13,
+        diffTrackBorder: 0.05,
+        finishLineP1: -0.40,
+        finishLineP2: 0.40,
+        diffLanesFinishLine: 0.05
+    },
+    // lapNumber: 3,
+    // showOfficialLogo: true,
+    loadPVSSpeedPositions: true,
+    // predefinedTracks: 4,
+    // newLap_functionNamePVS: "set_positions_init",
+    // action_attribute: "action",
+    // direction_attribute: "direction",
+    // sound_attribute: "sound",
+    // speed_attribute: "speed",
+    // posx_attribute: "posx",
+    // position_attribute: "position",
+    // speed_value: "val",
+    // posx_value: "val",
+    // position_value: "val",
+    // left_attribute: "left",
+    // right_attribute: "right",
+    // straight_attribute: "straight",
+    // accelerate_attribute: "acc",
+    // brake_attribute: "brake",
+    // idle_attribute: "idle",
+    // quit_attribute: "quit",
+    // pause_attribute: "pause",
+    // resume_attribute: "resume",
+    // mute_attribute: "mute",
+    // unmute_attribute: "unmute",
+    callback: onMessageReceived
+});</code></pre>
+                <p>Os diferentes campos opcionais do <i>widget Arcade</i> serão agora explicados com mais detalhe.</p>
+                <ul>
+                    <li>O campo opcional <i>parent</i> é o identificador da <i>div</i>, onde todo o <i>HTML</i> relacionado será acrescentado.</li>
+
+                    <li>O campo opcional <i>trackFilename</i> é o ficheiro de configuração <i>JSON</i> que foi produzido pelo <i>widget TrackGenerator</i>, i.e. é o ficheiro com os segmentos criados que terão de ser renderizados, bem como outras opções de visualização, como por exemplo os valores que permitem calcular a posição da câmara na <i>Canvas</i>. Este campo opcional deverá receber o nome do ficheiro criado pela <i>APIs</i> de escrita de ficheiros, quando esta existir, para permitir o fluxo contínuo entre a criação da pista e dos seus ambientes e a sua renderização.
+                    </li>
+                    <li>O campo opcional <i>spritesFilename</i> é o ficheiro de configuração <i>JSON</i> que possui o mapeamento de coordenadas das várias imagens que compõem a imagem da <i>spritesheet</i>.
+                    <li>O campo opcional <i>spritesFiles</i> possui o nome da imagem <i>spritesheet</i>, que agrupa todos os <i>sprites</i> utilizados na simulação. Caso pretenda uma simulação <i>arcade</i>, deverá fornecer o nome das duas imagens <i>spritesheet</i> necessárias, uma com os <i>sprites</i> das letras (fonte a utilizar) e outra com todos os objetos e obstáculos a renderizar. No caso de desejar uma simulação realista será apenas necessário fornecer a imagem <i>spritesheet</i> com todos os objetos e obstáculos a renderizar. 
+                    </li>
+                    <li>O campo opcional <i>useVehicle</i> indica se a simulação apresentará a imagem do veículo escolhida ou não. Ou seja, o utilizador deverá escrever <i>false</i> caso não pretenda visualizar nenhum veículo na simulação.
+                    </li>   
+                    <li>O campo opcional <i>realisticImgs</i> indica se as imagens a utilizar na simulação são ou não realistas, ou seja, se a simulação será ou não do tipo <i>arcade</i>, i.e. com gráficos semelhantes aos jogos de <i>arcade</i> antigos. Caso o utilizador pretenda uma simulação realista, deverá escrever <i>true</i>, onde as imagens <i>"real_helicopter_faced_front.png"</i>, <i>"real_helicopter_faced_left.png"</i> e <i>"real_helicopter_faced_right.png"</i> deverão existir no ficheiro de configuração <i>JSON</i> e na imagem <i>spriteheet</i>. Caso contrário, o utilizador deverá escrever <i>false</i>.
+                    </li>
+                    <li>O campo opcional <i>vehicle</i> indicar o veículo a utilizar na simulação, presente no ficheiro de configuração <i>JSON</i> e na imagem <i>spriteheet</i> fornecidos, nos campos opcionais <i>spritesFilename</i> e <i>spritesFiles</i>. Os tipos de veículo disponíveis são <i>airplane</i>, <i>bicycle</i>, <i>car</i>, <i>helicopter</i> e <i>motorbike</i>. Contudo para escolher o veículo será necessário que este exista nos ficheiros supracitados, para que o motor de renderização saiba onde pode ir recolher a imagem desse veículo. Por exemplo, se o ficheiro de configuração <i>JSON</i> e a imagem <i>spriteheet</i> possuírem as três imagens de um helicóptero, isto é, as imagens com o helicóptero virado para a frente, para a esquerda e para a direita, cujos nomes das imagens são <i>"helicopter_faced_front.png"</i>, <i>"helicopter_faced_left.png"</i> e <i>"helicopter_faced_right.png"</i>, tal como já foi explicado no capítulo de implementação, então o utilizador deverá escrever <i>helicopter</i>. Em suma, por cada nome colocado, deverá existir três imagens na imagem da <i>spritesheet</i>, com os sufixos <i>_faced_front</i>, <i>_faced_left</i> e <i>_faced_right</i>, que permitem mudar a imagem do objeto consoante a direção do veículo calculada ou atualizada pelo estado <i>PVS</i>.
+                    </li>
+                    <li>O campo opcional <i>vehicleImgIndex</i> indica o índice da imagem do veículo fornecido no campo opcional <i>vehicle</i>. Por exemplo, se o utilizador colocar 1 e o campo opcional <i>vehicle</i> for <i>helicopter</i>, o motor de renderização irá procurar as imagens <i>"helicopter1_faced_front.png"</i>, <i>"helicopter1_faced_left.png"</i> e  <i>"helicopter1_faced_right.png"</i> e caso não encontre nenhuma, irá procurar, por defeito, por <i>"helicopter_faced_front.png"</i>, <i>"helicopter_faced_left.png"</i> e <i>"helicopter_faced_right.png"</i>. 
+                    </li>
+                    <li>O campo opcional <i>logoImgIndex</i> indica o índice da imagem do logo que aparece nos menus inicial, pausa e fim. Por exemplo, se o utilizador colocar 3, o motor de renderização irá procurar as imagens <i>"logo3.png"</i> e caso não a encontre, irá procurar, por defeito, por <i>"logo.png"</i>. 
+                    </li>
+                    <li>O campo opcional <i>backgroundImgIndex</i> indica o índice da imagem do <i>background</i> da simulação. Por exemplo, se o utilizador colocar 2, o motor de renderização irá procurar as imagens <i>"background2.png"</i> e caso não a encontre, irá procurar, por defeito, por <i>"background.png"</i>. 
+                    </li>
+                    <li>O campo opcional <i>stripePositions</i> permite que o utilizador defina as posições onde serão colocados os delimitadores, a paisagem e a pista. Ou seja, </li>
+                        <ul>
+                            <li> <i>trackP1</i> é a posição horizontal onde começa a pista, no lado esquerdo do simulador.</li>
+                            <li> <i>trackP2</i> é a posição horizontal onde termina a pista, no lado direito do simulador.</li>
+                            <li> <i>borderWidth</i> é a largura do delimitador da pista (delimitadores vermelho e branco na Figura 1).</li>
+                            <li> <i>inOutBorderWidth</i> é a largura das extremidades do delimitador da pista (cinza escuro na Figura 1).</li>
+                            <li> <i>landscapeOutBorderWidth</i> é a largura da berma (verde escuro na Figura 1).</li>
+                            <li> <i>diffTrackBorder</i> é a diferença entre o início da pista e o delimitador da pista. Relembra-se que a pista inclui os delimitadores na sua extensão horizontal.</li>
+                            <li> <i>finishLineP1</i> é a posição inicial da linha de início/fim dentro da pista, do lado esquerdo.</li>
+                            <li> <i>finishLineP2</i> é a posição final da linha de início/fim dentro da pista, do lado direito.</li>
+                            <li> <i>diffLanesFinishLine</i> é a largura entre cada listra preta na linha de início/fim dentro da pista.</li>
+                        </ul>
+                    <li>O campo opcional <i>lapNumber</i> indica o número de voltas, que o utilizador deseja ter na simulação. Caso o utilizador não defina este campo, a simulação será infinita, i.e. só termina quando o utilizador fechar o <i>browser</i> ou quando pressionar a tecla associada ao menu <i>quit</i>, que termina a presente simulação.</li>
+                    <li>O campo opcional <i>newLap_functionNamePVS</i> indica o nome da função especificada formalmente, que faz o <i>reset</i> das posições horizontal e vertical para permitir uma nova visualização da pista, simulando a ideia de um circuito "fechado". 
+                    </li>
+                    <li>Os campos opcionais <i>action_attribute</i>, <i>direction_attribute</i>, <i>sound_attribute</i>, <i>speed_attribute</i>, <i>posx_attribute</i> e <i>position_attribute</i> indicam os identificadores das propriedades dos tipos <i>action</i>, <i>direction</i>, <i>sound</i>, <i>speed</i>, <i>posx</i> e <i>position</i> do estado <i>PVS</i>, descrito no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs</a>.
+                    </li>   
+                    <li>De igual forma, os campos opcionais <i>speed_value</i>, <i>posx_value</i>, <i>position_value</i>, <i>left_attribute</i>, <i>right_attribute</i> e <i>straight_attribute</i> indicam os identificadores das propriedades dos valores dos tipos <i>speed</i>, <i>posx</i>, <i>position</i>, <i>left</i>, <i>right</i> e <i>straight</i> do estado <i>PVS</i>, descrito no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs</a>.
+                    </li>
+                    <li>O campo opcional <i>showOfficialLogo</i> indica se o utilizador pretende ver o logo oficial do simulador no canto superior esquerdo do simulador.
+                    <li>O campo opcional <i>predefinedTracks</i> indica o sufixo do ficheiro de configuração da pista e seus ambientes disponíveis. Por exemplo, se o utilizador indicar <i>4</i>, então o simulador utilizará o ficheiro de configuração <i>trackLayout4.json</i>. Atualmente, existem nove pistas criadas com base em nove <i>layouts</i> diferentes, que podem ser consultadas em <a href="https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations">https://github.com/zecarlos94/pvsio-web/tree/gamingDev/src/client/app/widgets/car/configurations</a>.
+                    <li>O campo opcional <i>loadPVSSpeedPositions</i> indica se o utilizador pretende que o simulador não utilize o estado <i>PVS</i> para atualizar o estado do veículo, o que deverá tornar a simulação mais rápida.
+                    </li>
+                    <li>Os campos opcionais, do <i>widget Arcade</i>, <i>accelerate_attribute</i>, <i>brake_attribute</i>, <i>idle_attribute</i>, <i>quit_attribute</i>, <i>pause_attribute</i>, <i>resume_attribute</i>, <i>mute_attribute</i> e <i>unmute_attribute</i> deverão receber o identificador colocado pelo utilizador no construtor dos respetivos botões <i>accelerate</i>, <i>brake</i>, <i>idle</i>, <i>quit</i>, <i>pause</i>, <i>resume</i>, <i>mute</i> e <i>unmute</i>.</li>
+                </ul>
+
+                <p> Para criar uma nova simulação é, então, necessário instanciar não apenas o <i>widget Arcade</i>, que renderiza a pista e os ambientes que a rodeia, mas também os <i>widgets</i>, cujos <i>designs</i> serão “testados”, isto é, os <i>widgets</i> que compõem o painel de instrumentos automotivo, como é o caso do volante, velocímetro, tacómetro, entre outros. É também  necessária a criação de todos os botões que estão relacionados com as interações que o utilizador tem com o simulador, i.e. <i>HMI (Human-Machine Interface)</i>, que, por sua vez, invocam as especificações formais, definidas no ficheiro <i>main.pvs</i> supracitado. Por exemplo, criar os botões para as ações <i>retomar</i>, <i>pausar</i>, <i>parar</i>, <i>silenciar</i>, <i>ativar o som</i>, <i>acelerar</i> e <i>travar</i>.<p>
+    
+                <p>Deve-se salientar que se o ficheiro de configuração <i>JSON</i>, com a pista e os ambientes circundantes, criado pelo <i>widget TrackGenerator</i>, na primeira tarefa desta demonstração, utilizou o ficheiro <i>JSON</i> de mapeamento de coordenadas <i>spritesheet.json</i>, cujos <i>sprites</i>(imagens) estão presentes nas imagens <i>spritesheets</i> <i>spritesheet.png</i> e <i>spritesheet.text.png</i>, então o <i>widget Arcade</i> , para representar corretamente a pista e os seus ambientes circundantes, deve receber os mesmos ficheiros de configuração <i>JSON</i>, nos campos opcionais <i>spritesFilename</i> e <i>spritesFiles</i> . Todas as <i>spritesheets</i> devem ter a extensão <i>.png</i>, já que é a extensão padrão, que está a ser adicionada, para simplificar os valores recebidos nos campos opcionais.<p>
+
+                <p>Para criar o ficheiro <i>JSON</i> de mapeamento de coordenadas da imagem <i>spritesheet</i> e para criar a imagem <i>spritesheet</i>, que agrupa todas as imagens individuais numa só imagem, é recomendada a utilização da ferramenta <i>TexturePacker</i>, disponível em <a href="https://www.codeandweb.com/texturepacker">https://www.codeandweb.com/texturepacker</a>, que permite adicionar e agrupar as diferentes imagens numa só imagem, e que através da funcionalidade <i>publish</i> é possível criar o ficheiro <i>JSON</i> de mapeamento de coordenadas da imagem, i.e. o ficheiro com as coordenadas de cada imagem, e criar a imagem <i>spritesheet</i>, com a extensão padrão <i>.png</i>.</p>
+                <p>A <i>API</i> necessária para iniciar a nova simulação é apresentada no excerto de código a seguir.</p>
+                <pre class="prettyprint source"><code>arcade.arcadeWidget.startSimulation();</code></pre>
+                <p>Esta função é responsável por finalizar a leitura dos ficheiros de configuração recebidos nos campos opcionais e por iniciar a animação que constitui a simulação.</p>
+
+                <p>O método <i>render</i> da demonstração é responsável por invocar os métodos <i>render</i> de cada um dos <i>widgets</i> que compõem a demonstração. No próximo excerto de código é possível observar a invocação dos métodos <i>render</i> dos <i>widgets</i> velocímetro, tacómetro, volante e <i>Arcade</i>. Este método <i>render</i> é o método que permite passar o estado <i>PVS</i> para os <i>widgets</i>, que o utilizarão para atualizar os seus estados. Relembra-se que o processo de criação de pista e dos seus ambientes circundantes é um processo que antecede a instanciação destes <i>widgets</i> e a invocação deste método <i>render</i>.</p>
+                <pre class="prettyprint source"><code>function render(res) {
+    arcade.speedometerGauge.render(evaluate(res.speed.val));
+    arcade.tachometerGauge.render(evaluate(res.rpm));
+    arcade.steeringWheel.render(evaluate(res.steering));
+    arcade.arcadeWidget.render(res);
+}</code></pre>
+                <p>Para a renderização da pista e dos seus ambientes circundantes, se o utilizador não definir nenhum campo opcional, no terceiro argumento do construtor do <i>widget Arcade</i>, o último utilizará os valores predefinidos que se encontram no excerto de código que se apresenta de seguida, que correspondem a uma simulação do tipo <i>arcade</i>, isto é, que utiliza imagens e fontes semelhantes aos jogos de <i>arcade</i> antigos e utiliza uma pista com curvas, linhas rectas com diferentes perfis de elevação, criada aleatoriamente com a respetiva <i>API</i>.</p>
+                <pre class="prettyprint source"><code>parent: "body", 
+trackFilename: "track-curves-slopes-random", 
+spritesFilename: "spritesheet", 
+spritesFiles: ["spritesheet","spritesheet.text"], 
+useVehicle: true,
+realisticImgs: false,
+vehicle: "car", 
+vehicleImgIndex: null, 
+logoImgIndex: null,
+backgroundImgIndex: null,
+stripePositions: {
+    trackP1: -0.55,
+    trackP2: 0.55,
+    borderWidth: 0.08,
+    inOutBorderWidth: 0.02,
+    landscapeOutBorderWidth: 0.13,
+    diffTrackBorder: 0.05,
+    finishLineP1: -0.40,
+    finishLineP2: 0.40,
+    diffLanesFinishLine: 0.05
+},
+lapNumber: 0,
+showOfficialLogo: false,
+loadPVSSpeedPositions: true,
+predefinedTracks: null,
+newLap_functionNamePVS: "set_positions_init",
+action_attribute: "action",
+direction_attribute: "direction",
+sound_attribute: "sound",
+speed_attribute: "speed",
+posx_attribute: "posx",
+position_attribute: "position",
+speed_value: "val",
+posx_value: "val",
+position_value: "val",
+left_attribute: "left",
+right_attribute: "right",
+straight_attribute: "straight",
+accelerate_attribute: "acc",
+brake_attribute: "brake",
+idle_attribute: "idle",
+quit_attribute: "quit",
+pause_attribute: "pause",
+resume_attribute: "resume",
+mute_attribute: "mute",
+unmute_attribute: "unmute"</code></pre>
+        
+                    <p>Relembra-se que o ficheiro com a pista e os seus ambientes circundantes, por defeito é a pista que se encontra configurada no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/src/client/app/widgets/car/configurations/track-curves-slopes-random.json">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/src/client/app/widgets/car/configurations/track-curves-slopes-random.json</a>, que possui diferentes topografias e perfis de elevação.</p>
+
+                    <p>O utilizador pode optar por não fornecer o nome do ficheiro com a pista e os seus ambientes circundantes que pretende renderizar, mas optar sim por fornecer o índice de um nove ficheiros existentes, atualmente, com pistas diferentes. Ou seja, se o utilizador quiser renderizar a pista configurada no ficheiro <i>trackLayout6.json</i> apenas será necessário fornecer o valor <i>6</i> no campo opcional <i>predefinedTracks</i>.</p>
+    
+                    <p>Caso o utilizador pretenda utilizar outra especificação formal que não a predefinida, deverá criar a respectiva teoria no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/old_appearance_arcade_game_simulator/pvs/main.pvs</a>. De seguida apresenta-se, no excerto de código, a teoria <i>PVS</i> que descreve os comportamentos das ações da simulação desenvolvida.</p>
+
+                    <pre class="prettyprint source"><code>% ---------------------------------------------------------------
+%  Theory: car_demo
+%  Author: Paolo Masci and Jose Carlos
+%          INESC TEC and Universidade do Minho
+% ---------------------------------------------------------------
+
+main: THEORY
+BEGIN
+
+Gear: TYPE = { P, N, R, GEAR_1, GEAR_2, GEAR_3, GEAR_4, GEAR_5, GEAR_6 }
+gear2real(g: Gear): real =
+COND
+g = P OR g = N -> 0,
+g = R -> 3.67,
+g = GEAR_1 -> 3.78,
+g = GEAR_2 -> 2.06,
+g = GEAR_3 -> 1.23,
+g = GEAR_4 -> 0.83,
+g = GEAR_5 -> 0.7,
+g = GEAR_6 -> 0.6
+ENDCOND
+CONVERSION gear2real
+
+MAX_SPEED: real = 300
+Speed_Unit: TYPE = { kpm, mph }
+Speed_Val: TYPE = { x: real | x <= MAX_SPEED }
+Speed: TYPE = [#
+val: Speed_Val,
+units: Speed_Unit
+#]
+
+MAX_RPM: real = 14
+Rpm: TYPE = { x: nonneg_real | x <= MAX_RPM }
+
+MAX_ODO: real = 999999
+Odo: TYPE = { x: nonneg_real | x <= MAX_ODO }
+
+TEMP_AMB: real = 16.1
+Temp_Units: TYPE = { C, F }
+Temp: TYPE = [#
+val: real,
+units: Temp_Units
+#]
+
+POSITION_INIT: real = 10.0
+Position: TYPE = [#
+val: real
+#]
+
+POSX_INIT: real = 0.0
+PosX: TYPE = [#
+val: real
+#]
+
+Action: TYPE = { idle, acc, brake, pause, resume, quit }
+Direction: TYPE = { left, right, straight }
+Sound: TYPE = { unmute, mute }
+Startstopbutton: TYPE = { off, on }
+Sportmodebutton: TYPE = { off, on }
+Time: TYPE = [# hour: int, min: int #]
+
+state: TYPE = [#
+speed: Speed, % Km/h
+gear: Gear,
+rpm: Rpm, % x1000/min
+odo: Odo, % Km
+temp: Temp,
+time: Time,
+steering: real,
+position: Position,
+posx: PosX,
+action: Action,
+direction: Direction,
+sound: Sound,
+startstopbutton: Startstopbutton,
+sportmodebutton: Sportmodebutton
+#]
+
+get_current_time: Time = (# hour := get_time`hour, min := get_time`minute #)
+
+%-- initial state
+init(x: real): state = (#
+speed := (# val:= IF x < MAX_SPEED THEN x ELSE MAX_SPEED ENDIF, units := kpm #),
+gear := N,
+rpm := 0,
+odo := 0,
+temp := (# val := TEMP_AMB, units := C #),
+time := get_current_time,
+steering := 0,
+position := (# val := POSITION_INIT  #),
+posx := (# val := POSX_INIT #),
+action := idle,
+direction := straight,
+sound := unmute,
+startstopbutton := off,
+sportmodebutton := off
+#)
+
+%-- utility functions
+tyre: real = 7.30 %-- tyre circumference, in feet
+% this function converts speed into rpms based on the gear and tyre size
+getRPM(st: state): Rpm =
+LET new_rpm = (speed(st)`val * gear(st) * 440) / tyre / 1000
+IN COND
+new_rpm < 0 -> 0,
+new_rpm > MAX_RPM -> MAX_RPM,
+ELSE -> new_rpm
+ENDCOND
+
+getAcc(g: Gear): Speed_Val =
+COND
+g = P OR g = N -> 0,
+g = R -> -0.6,
+g = GEAR_1 -> 0.6,
+g = GEAR_2 -> 1.2,
+g = GEAR_3 -> 1,
+g = GEAR_4 -> 0.8,
+g = GEAR_5 -> 0.6,
+g = GEAR_6 -> 0.3
+ENDCOND
+
+getAccSportMode(g: Gear): Speed_Val =
+COND
+g = P OR g = N -> 0,
+g = R -> -5,
+g = GEAR_1 -> 1.3,
+g = GEAR_2 -> 1.5,
+g = GEAR_3 -> 1.8,
+g = GEAR_4 -> 2,
+g = GEAR_5 -> 2.2,
+g = GEAR_6 -> 2.5
+ENDCOND
+
+getBrk(g: Gear): [# speed: real, rpm: real #] = (# speed := -2, rpm := -1 #)
+
+getBrkSportMode(g: Gear): [# speed: real, rpm: real #] = (# speed := -8, rpm := -2 #)
+
+gearUP(st: state): state =
+LET g = gear(st) IN
+COND
+g = P OR g = N OR g = R -> st,
+g = GEAR_1 -> st WITH [ gear := GEAR_2 ],
+g = GEAR_2 -> st WITH [ gear := GEAR_3 ],
+g = GEAR_3 -> st WITH [ gear := GEAR_4 ],
+g = GEAR_4 -> st WITH [ gear := GEAR_5 ],
+g = GEAR_5 -> st WITH [ gear := GEAR_6 ],
+g = GEAR_6 -> st
+ENDCOND
+gearDOWN(st: state): state =
+LET g = gear(st) IN
+COND
+g = P OR g = N OR g = R -> st,
+g = GEAR_1 -> st,
+g = GEAR_2 -> st WITH [ gear := GEAR_1 ],
+g = GEAR_3 -> st WITH [ gear := GEAR_2 ],
+g = GEAR_4 -> st WITH [ gear := GEAR_3 ],
+g = GEAR_5 -> st WITH [ gear := GEAR_4 ],
+g = GEAR_6 -> st WITH [ gear := GEAR_5 ]
+ENDCOND
+
+accelerate(st: state): state =
+LET st = st WITH [ gear := IF gear(st) = N THEN GEAR_1 ELSE gear(st) ENDIF ],
+step = getAcc(gear(st)),
+st = IF speed(st)`val + step < MAX_SPEED
+THEN st WITH [ speed := speed(st) WITH [ val:= speed(st)`val + step ]]
+ELSE st WITH [ speed := speed(st) WITH [ val:= MAX_SPEED ]] ENDIF,
+new_rpm = getRPM(st),
+st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+IN IF rpm(st) > 6 THEN gearUP(st) ELSE st ENDIF
+
+accelerateSportMode(st: state): state =
+LET st = st WITH [ gear := IF gear(st) = N THEN GEAR_1 ELSE gear(st) ENDIF ],
+step = getAccSportMode(gear(st)),
+st = IF speed(st)`val + step < MAX_SPEED
+THEN st WITH [ speed := speed(st) WITH [ val:= speed(st)`val + step ]]
+ELSE st WITH [ speed := speed(st) WITH [ val:= MAX_SPEED ]] ENDIF,
+new_rpm = getRPM(st),
+st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+IN IF rpm(st) > 6 THEN gearUP(st) ELSE st ENDIF
+
+brake(st: state): state =
+LET step = getBrk(gear(st)),
+st = IF speed(st)`val >= 0
+THEN st WITH [ speed := speed(st) WITH
+[ val := IF speed(st)`val + step`speed > 0
+THEN speed(st)`val + step`speed
+ELSE 0 ENDIF ]]
+ELSE %-- the car was driving in reverse, so the speed was negative
+st WITH [ speed := speed(st) WITH
+[ val:= IF speed(st)`val - step`speed < 0
+THEN speed(st)`val - step`speed
+ELSE 0 ENDIF ]] ENDIF,
+new_rpm = getRPM(st),
+st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+IN IF rpm(st) < 4 THEN gearDOWN(st) ELSE st ENDIF
+
+brakeSportMode(st: state): state =
+LET step = getBrkSportMode(gear(st)),
+st = IF speed(st)`val >= 0
+THEN st WITH [ speed := speed(st) WITH
+[ val := IF speed(st)`val + step`speed > 0
+THEN speed(st)`val + step`speed
+ELSE 0 ENDIF ]]
+ELSE %-- the car was driving in reverse, so the speed was negative
+st WITH [ speed := speed(st) WITH
+[ val:= IF speed(st)`val - step`speed < 0
+THEN speed(st)`val - step`speed
+ELSE 0 ENDIF ]] ENDIF,
+new_rpm = getRPM(st),
+st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+IN IF rpm(st) < 4 THEN gearDOWN(st) ELSE st ENDIF
+
+FRICTION: Speed_Val = 0.6
+inc(odo: Odo, speed: Speed): Odo =
+LET step = speed`val / 60 * 1
+IN IF step >= 0
+THEN IF odo + step <= MAX_ODO THEN odo + step ELSE odo + step - MAX_ODO ENDIF
+ELSE IF odo + step <= 0 THEN 0 ELSE odo + step ENDIF ENDIF
+
+POSX_STEP: real = 25 
+tick(st: state): state =
+LET st = st WITH [ time := get_current_time,
+position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+IN IF speed(st)`val > 0
+THEN LET new_speed: Speed_Val = COND action(st) = idle -> IF speed(st)`val - FRICTION > 0 THEN speed(st)`val - FRICTION ELSE 0 ENDIF,
+ELSE -> speed(st)`val ENDCOND,
+st = st WITH [ speed := speed(st) WITH [ val := new_speed ]]
+IN st WITH [ rpm := getRPM(st),
+odo := inc(odo(st), speed(st)),
+posx := posx(st) WITH [ val := COND steering(st) >= 20 -> posx(st)`val + POSX_STEP,
+steering(st) <= -20 -> posx(st)`val - POSX_STEP,
+ELSE -> posx(st)`val ENDCOND ],
+direction := COND steering(st) >= 20 -> right,
+steering(st) <= -20 -> left,
+ELSE -> straight ENDCOND ]
+ELSE st ENDIF
+
+
+%-- APIs
+press_accelerate(st: state): state = IF sportmodebutton(st) = off
+THEN accelerate(st) WITH [ action := acc ]
+ELSE accelerateSportMode(st) WITH [ action := acc ]
+ENDIF
+release_accelerate(st: state): state = st WITH [ action := idle ]
+
+press_brake(st: state): state = IF sportmodebutton(st) = off
+THEN brake(st) WITH [ action := brake ]
+ELSE brakeSportMode(st) WITH [ action := brake ]
+ENDIF
+release_brake(st: state): state = st WITH [ action := idle ]
+
+STEERING_STEP: real = 20 %deg
+steering_wheel_right(st: state): state = st WITH [ steering := IF steering(st) < 90 THEN steering(st) + STEERING_STEP ELSE 90 ENDIF ]
+steering_wheel_left(st: state): state = st WITH [ steering := IF steering(st) > -90 THEN steering(st) - STEERING_STEP ELSE -90 ENDIF ]
+steering_wheel_straight(st: state): state = st WITH [ steering := 0, posx := posx(st) WITH [ val:= posx(st)`val ], direction := straight ]
+steering_wheel_rotate(x: real)(st: state): state = st WITH [ steering := x ]
+
+%-- API for new laps
+set_positions_init(st: state): state = st WITH [ position := (# val := POSITION_INIT  #), posx := (# val := POSX_INIT #) ]
+
+%-- API for sound controls 
+press_mute(st: state): state = st WITH [ sound := mute ]
+release_mute(st: state): state = st WITH [ sound := mute ]
+
+press_unmute(st: state): state = st WITH [ sound := unmute ]
+release_unmute(st: state): state = st WITH [ sound := unmute ]
+
+%-- API for virtual Keypad controller 
+%-- TODO create the interactions with Arcade Driving Simulator
+press_quit(st: state): state = st WITH [ action := quit, startstopbutton := off ]
+release_quit(st: state): state = st WITH [ action := idle ]
+press_pause(st: state): state = st WITH [ action := pause, startstopbutton := off ]
+release_pause(st: state): state = st WITH [ action := idle ]
+press_resume(st: state): state = st WITH [ action := resume, startstopbutton := on ]
+release_resume(st: state): state = st WITH [ action := idle ]
+
+%-- API for external controllers such as PS4 gamepad
+click_accelerate(st: state): state = IF sportmodebutton(st) = off
+THEN accelerate(st) WITH [ action := acc ]
+ELSE accelerateSportMode(st) WITH [ action := acc ]
+ENDIF
+click_brake(st: state): state = IF sportmodebutton(st) = off
+THEN brake(st) WITH [ action := brake ]
+ELSE brakeSportMode(st) WITH [ action := brake ]
+ENDIF
+
+%-- API for external controller interactive image
+press_rightArrow(st: state): state = steering_wheel_right(st)
+release_rightArrow(st: state): state = st
+
+press_leftArrow(st: state): state = steering_wheel_left(st)
+release_leftArrow(st: state): state = st
+
+%-- API for case study 2015 Lincoln MCK interactive dashboard image
+startAndStop(st: state): state = 
+LET st = IF startstopbutton(st) = off
+THEN st WITH [ action := resume, startstopbutton := on ]
+ELSE st WITH [ action := quit, startstopbutton := off ] 
+ENDIF
+IN st 
+
+activateSportMode(st: state): state = 
+LET st = IF sportmodebutton(st) = off
+THEN st WITH [ sportmodebutton := on ]
+ELSE st WITH [ sportmodebutton := off ] 
+ENDIF
+IN st 
+
+press_startAndStop(st: state): state = startAndStop(st)
+release_startAndStop(st: state): state = st WITH [ action := idle ]
+
+press_activateSportMode(st: state): state = activateSportMode(st)
+release_activateSportMode(st: state): state = st WITH [ action := idle ]
+
+END main</code></pre>
+                    
+                    <p>Este conjunto de especificações formais foram adaptadas e desenvolvidas a partir da especificação formal da demonstração <i>car</i> que serviu de base a esta dissertação, que pode ser testada em <a href="http://localhost:8082/demos/car/">http://localhost:8082/demos/car/</a>. As novas especificações foram criadas para que seja possível ter um estado da simulação de ambientes circundantes (simulador 2D de corridas), com parâmetros exclusivamente utilizados pelo <i>widget Arcade</i> e para que a utilização de controladores externos fosse possível.</p>
+    
+                    <p>As especificações formais que foram adicionadas são as que se apresentam no excerto de código a seguir.</p>
+                    <pre class="prettyprint source"><code>POSITION_INIT: real = 10.0
+Position: TYPE = [#
+    val: real
+#]
+
+POSX_INIT: real = 0.0
+PosX: TYPE = [#
+    val: real
+#]
+
+Action: TYPE = { idle, acc, brake, pause, resume, quit }
+Direction: TYPE = { left, right, straight }
+Sound: TYPE = { unmute, mute }
+
+%-- Types for case study 2015 Lincoln MCK interactive dashboard image
+Startstopbutton: TYPE = { off, on }
+Sportmodebutton: TYPE = { off, on }
+
+state: TYPE = [#
+    speed: Speed, % Km/h
+    gear: Gear,
+    rpm: Rpm, % x1000/min
+    odo: Odo, % Km
+    temp: Temp,
+    time: Time,
+    steering: real,
+    position: Position,
+    posx: PosX,
+    action: Action,
+    direction: Direction,
+    sound: Sound,
+    startstopbutton: Startstopbutton,
+    sportmodebutton: Sportmodebutton
+#]
+
+%-- API for new laps
+ set_positions_init(st: state): state = st WITH [ position := (# val := POSITION_INIT  #), posx := (# val := POSX_INIT #) ]
+
+
+%-- API for case study 2015 Lincoln MCK interactive dashboard image
+ getAccSportMode(g: Gear): Speed_Val =
+     COND
+     g = P OR g = N -> 0,
+     g = R -> -5,
+     g = GEAR_1 -> 1.3,
+     g = GEAR_2 -> 1.5,
+     g = GEAR_3 -> 1.8,
+     g = GEAR_4 -> 2,
+     g = GEAR_5 -> 2.2,
+     g = GEAR_6 -> 2.5
+     ENDCOND
+     
+ getBrkSportMode(g: Gear): [# speed: real, rpm: real #] = (# speed := -8, rpm := -2 #)
+
+ accelerateSportMode(st: state): state =
+    LET st = st WITH [ gear := IF gear(st) = N THEN GEAR_1 ELSE gear(st) ENDIF ],
+    step = getAccSportMode(gear(st)),
+    st = IF speed(st)`val + step < MAX_SPEED
+    THEN st WITH [ speed := speed(st) WITH [ val:= speed(st)`val + step ]]
+    ELSE st WITH [ speed := speed(st) WITH [ val:= MAX_SPEED ]] ENDIF,
+    new_rpm = getRPM(st),
+    st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+    IN IF rpm(st) > 6 THEN gearUP(st) ELSE st ENDIF
+
+ brakeSportMode(st: state): state =
+    LET step = getBrkSportMode(gear(st)),
+    st = IF speed(st)`val >= 0
+    THEN st WITH [ speed := speed(st) WITH
+    [ val := IF speed(st)`val + step`speed > 0
+    THEN speed(st)`val + step`speed
+    ELSE 0 ENDIF ]]
+    ELSE %-- the car was driving in reverse, so the speed was negative
+    st WITH [ speed := speed(st) WITH
+    [ val:= IF speed(st)`val - step`speed < 0
+    THEN speed(st)`val - step`speed
+    ELSE 0 ENDIF ]] ENDIF,
+    new_rpm = getRPM(st),
+    st = st WITH [ rpm := new_rpm ]%, position := position(st) WITH [ val:= position(st)`val + speed(st)`val ]]
+    IN IF rpm(st) < 4 THEN gearDOWN(st) ELSE st ENDIF
+
+
+startAndStop(st: state): state = 
+    LET st = IF startstopbutton(st) = off
+    THEN st WITH [ action := resume, startstopbutton := on ]
+    ELSE st WITH [ action := quit, startstopbutton := off ] 
+    ENDIF
+    IN st 
+
+activateSportMode(st: state): state = 
+    LET st = IF sportmodebutton(st) = off
+    THEN st WITH [ sportmodebutton := on ]
+    ELSE st WITH [ sportmodebutton := off ] 
+    ENDIF
+    IN st 
+    
+ press_startAndStop(st: state): state = startAndStop(st)
+ release_startAndStop(st: state): state = st WITH [ action := idle ]
+
+ press_activateSportMode(st: state): state = activateSportMode(st)
+ release_activateSportMode(st: state): state = st WITH [ action := idle ]</code></pre>
+
+                    <p>Os tipos <i>Position</i>, <i>PosX</i> e <i>Speed</i> permitem definir a posição, vertical e horizontal, e a velocidade do veículo durante a simulação. O tipo <i>Sound</i> permite que o <i>widget Arcade</i> saiba quando é necessário realizar as ações <i>silenciar</i> e <i>ativar o som</i>, isto é, <i>mute</i> e <i>unmute</i>, utilizando, para tal, a <i>API</i> correspondente disponibilizada pelo <i>widget Sound</i>.</p>
+    
+                    <p>Os valores de <i>PosX</i> variam consoante a rotação do volante. Os valores de  <i>Position</i> variam consoante as ações <i>accelerate</i> e <i>brake</i>, isto é, <i>acelerar</i> e <i>travar</i>, e consoante a velocidade atual, isto é, o valor atual de <i>Speed</i>.</p>
+    
+                    <p>As ações <i>retomar</i>, <i>pausar</i> e <i>parar</i>, ou seja, as ações <i>resume</i>, <i>pause</i> e <i>quit</i> permitem que o <i>widget Arcade</i> saiba quando é necessário apresentar os menus <i>resume</i>, <i>pause</i> e <i>quit</i>, respetivamente.</p>
+    
+                    <p>A função <i>set_positions_init</i> será invocada sempre que o <i>Widget Arcade</i> terminar de renderizar o último conjunto de segmentos da pista e dos seus ambientes circundantes, para que seja possível recomeçar uma nova volta, i.e. uma nova renderização consecutiva, sem que o utilizador repare, simulando o conceito de circuito "fechado". O conceito de simulação infinita é a aplicação do conceito de voltas infinitas, que apenas termina quando o utilizador sair da simulação, invocando a ação <i>quit</i>.</p>
                 </li>
             </ul>
 
+
+            <p>Uma vez que o simulador também permite renderizar simulações mais realistas apresenta-se na figura 20 o resultado de uma demonstração mais realista, que necessita de diferentes parâmetros nos campos opcionais já analisados neste tutorial.</p> 
+    
+            <p>Na demonstração <a href="http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/">http://localhost:8082/demos/arcade_game_simulator_full_screen_for_paper/</a> é possível testar o simulador de corridas, versão mais realista, cuja pista e ambientes circundantes criados encontram-se instanciados na demonstração <a href="http://localhost:8082/demos/track_generator_simulator_for_paper/">http://localhost:8082/demos/track_generator_simulator_for_paper/</a>. A figura 21 mostra a <i>spritesheet</i> que contém o conjunto das imagens utilizadas na renderização da simulação realista apresentada na figura 20.</p>
+    
+            <p>
+                <img src="img/demo-example-realistic.png" alt="demo-example-realistic" width="550" style="margin-left: 250px">
+                <figcaption style="margin-left: 200px">Figura 20 - <i>Screenshot</i> de uma Demonstração Realista, com o <i>design</i> do painel automotivo do caso de estudo (<i>Licoln MKC de 2015)</i>)</figcaption>
+            </p>
+
+
+            <p>
+                <img src="img/demo-spritesheet-realistic.png" alt="demo-spritesheet-realistic" width="500" style="margin-left: 290px">
+                <figcaption style="margin-left: 220px">Figura 21 - <i>Spritesheet</i> usada para a Demonstração Realista da Figura 20</figcaption>
+            </p>
+
+
+            <p>Nesta demonstração é possível observar a introdução do painel de instrumentos completo, bem como a introdução da noção de "vista pára-brisas", isto é, onde a simulação é o mais realista possível simulando o interior do veículo, ou seja apresenta-se o <i>design</i> da interface do <i>dashboard</i> (painel automotivo do caso de estudo) se pretende estudar e analisar com o simulador de corridas à frente do vidro pára-brisas.</p> 
+
+            <p>Para tal foi necessário criar mais um <i>widget</i> que permite colocar a imagem do painel de instrumentos completo que se pretende analisar (caso de estudo <i>Lincoln MKC de 2015</i>), bem como a definição dos botões que permitirão ao utilizador interagir com o simulador de corridas, cuja especificação se encontra descrita com a linguagem <i>PVS</i>, no ficheiro <a href="https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/arcade_game_simulator_full_screen_for_paper/pvs/main.pvs">https://github.com/zecarlos94/pvsio-web/blob/gamingDev/examples/demos/arcade_game_simulator_full_screen_for_paper/pvs/main.pvs</a>.</p>
+
+            <p>Visto que o caso de estudo é o <i>design</i> do veículo <i>Lincoln MKC</i> de 2015, foi necessário criar o <i>widget LincolnMKCDashboard</i>, presente no excerto de código que se apresenta a seguir, que é responsável por renderizar quer o painel de instrumentos completo antes de serem apresentadas queixas pelos condutores desses veículos (campo opcional <i>design: "before"</i>), quer após o fabricante ter recolhido os veículos para realizar a modifcação da interface (campo opcional <i>design: "after"</i>).</p>
+
+            <p>É também responsável pela definição dos botões (campo opcional <i>buttonsPVS: ["startAndStop", "activateSportMode"]</i>), que permitem simular a ativação do modo desportivo e a ativação do botão <i>start/stop</i>, que permite ligar e desligar o veículo. Desta forma, é possível testar o <i>design</i> do painel de instrumentos (antes e depois da modificação da interface) com o simulador de corridas e observar o impacto que a localização dos botões dessas funcionalidades causa durante a condução em certos ambientes.</p>
+
+            <pre class="prettyprint source"><code>arcade.lincolnMKCDashboard = new LincolnMKCDashboard('lincolnMKCDashboard',
+    {
+        top: 5, left: 0, width: 450, height: 140 
+    },{ 
+        parent: "content", // defines parent div, which is div id="body" by default 
+        dashIndex: 1,
+        design: "before", // "after",
+        buttonsPVS: [ "startAndStop", "activateSportMode"],
+        callback: onMessageReceived
+    } 
+);</code></pre>
+
+            <p>A figura 22 apresenta um <i>screenshot</i> da simulação de corridas realista sem a introdução do <i>widget LincolnMKCDashboard</i>, isto é, sem apresentar o painel de instrumentos completo a analisar. Esta figura demonstra apenas a simulação de corridas realista, renderizada pelo \<i>widget Arcade</i> e serve para comparar a aparência visual em relação à figura 1. Nas figuras 20 e 22 é possível observar não só objetos na paisagem mais realistas, como edifícios, arranha-céus e árvores, mas também sinais de trânsito colocados na posição desejada, cujo processo já foi explicado detalhadamente anteriormente.</p>
+    
+            <p>
+                <img src="img/demo-example-realistic2.png" alt="demo-example-realistic2" width="550" style="margin-left: 250px">
+                <figcaption style="margin-left: 200px">Figura 22 - <i>Screenshot</i> de uma Demonstração Realista, apenas com os ambientes circundantes</figcaption>
+            </p>
+
+            <p>Este tutorial visa ajudar a compreender melhor a interação entre os diferentes componentes desenvolvidos e integrados (já existentes na plataforma <i>PVSio-web</i>) no desenvolvimento de uma proposta de solução que permita criar ambientes circundantes de raíz, bem como visualizar os mesmos por forma a fornecer um mecanismo de criação de contextos de uso a aplicar em testes ao <i>design</i> de interfaces homem-máquina (<i>HMI</i>) de diferentes painéis automotivos e possivelmente ajudar a detetar potenciais falhas de <i>design</i> e a ajudar a ensinar a importância de se considerar os ambientes/contextos de uso durante o processo de <i>design</i> de  interfaces homem-máquina (<i>HMI</i>).</p>
 
         </article>
     </section>
