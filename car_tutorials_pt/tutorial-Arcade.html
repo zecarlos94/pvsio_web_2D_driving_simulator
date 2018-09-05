@@ -206,6 +206,7 @@ trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget",
 
 {
     parent: "content", // defines parent div, which is div id="body" by default
+    filePath: "old_appearance_track_generator_simulator/img/",
     spritesFilename: "spritesheet", // defines spritesheet configuration filename, which is "spritesheet.json" by default
     render: {
         depthOfField: 150,
@@ -234,7 +235,7 @@ trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget",
     objects: [
         {
             filename:"tree",
-            scale: 3.5,
+            scale: 9,
             positionsX: [
                 -2.4,
                 2.3
@@ -242,7 +243,7 @@ trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget",
         },
         {
             filename:"stump",
-            scale: 3.5,
+            scale: 4.5,
             positionsX: [
                 -2.9,
                 4.2
@@ -258,55 +259,25 @@ trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget",
         },
         {
             filename:"tree2",
-            scale: 3.5,
+            scale: 9,
             positionsX: [
                 -1.6,
                 1.8
             ]
         },
         {
-            filename:"brunetteGirlBack",
-            scale: 6,
-            positionsX: [
-                -1.7,
-                1.9
-            ]
-        },
-        {
             filename:"bush2",
-            scale: 6,
+            scale: 8,
             positionsX: [
                 -1.9,
                 1.7
-            ]
-        },
-        {
-            filename:"hatManBack",
-            scale: 7,
-            positionsX: [
-                2.9,
-                -2.7
             ]
         }
     ],
     obstacle: [
         {
-            filename:"dead_tree2",
-            scale: 2.75,
-            positionsX: [
-                0.4
-            ]
-        },
-        {
-            filename:"column",
-            scale: 2.75,
-            positionsX: [
-                0.4
-            ]
-        },
-        {
             filename:"dearRight",
-            scale: 1.75,
+            scale: 3.75,
             positionsX: [
                 -0.4,
                 0.4,
@@ -390,6 +361,7 @@ trackGenerator.trackGeneratorWidget = new TrackGenerator("trackGeneratorWidget",
                 </p>
                 <pre class="prettyprint source"><code>parent: "body",
 spritesFilename: "spritesheet",
+filePath: "../../client/app/widgets/car/configurations/",
 render: {depthOfField: 150,camera_distance: 30,camera_height: 320},
 trackSegmentSize: 5,
 numberOfSegmentPerColor: 4,
@@ -511,6 +483,7 @@ arcade.steeringWheel = new SteeringWheel("steering_wheel", {
     height: 600
 }, {
     style: "ferrari",
+    imagePath: "old_appearance_track_generator_simulator/img/steering_wheels/",
     callback: onMessageReceived
 });
 </code></pre>
@@ -528,6 +501,7 @@ arcade.arcadeWidget = new Arcade("arcadeWidget",
 {
     parent: "content", // defines parent div, which is div id="body" by default
     scaleWindow: 1, // scales canvas div
+    filesPath: "old_appearance_track_generator_simulator/configuration/"
     trackFilename: "trackLayoutArcade2", // defines track configuration filename, which is "track-curves-slopes-random.json" by default
     spritesFilename: "spritesheet", // defines spritesheet configuration filename, which is "spritesheet.json" by default
     spritesFiles: ["spritesheet","spritesheet.text"], // defines all spritesheets(images). Default are "spritesheet.png" and "spritesheet.text.png"
@@ -641,6 +615,7 @@ arcade.arcadeWidget = new Arcade("arcadeWidget",
                 <p>Para a renderização da pista e dos seus ambientes circundantes, se o utilizador não definir nenhum campo opcional, no terceiro argumento do construtor do <i>widget Arcade</i>, o último utilizará os valores predefinidos que se encontram no excerto de código que se apresenta de seguida, que correspondem a uma simulação do tipo <i>arcade</i>, isto é, que utiliza imagens e fontes semelhantes aos jogos de <i>arcade</i> antigos e utiliza uma pista com curvas, linhas rectas com diferentes perfis de elevação, criada aleatoriamente com a respetiva <i>API</i>.</p>
                 <pre class="prettyprint source"><code>parent: "body", 
 trackFilename: "track-curves-slopes-random", 
+filesPath: "../../client/app/widgets/car/configurations/",
 spritesFilename: "spritesheet", 
 spritesFiles: ["spritesheet","spritesheet.text"], 
 useVehicle: true,
